@@ -109,8 +109,6 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     private boolean mSurfaceAvailable;
     private boolean mIsPrepared;
     private boolean mWasPlaying;
-    private int mInitialTextureWidth;
-    private int mInitialTextureHeight;
 
     private Handler mHandler;
 
@@ -134,6 +132,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     private boolean mControlsDisabled;
     private int mThemeColor = 0;
     private boolean mAutoFullscreen = false;
+    private float mVideoSizeLoading = 16f / 10f;
 
     // Runnable used to run code on an interval to update counters and seeker
     private final Runnable mUpdateCounters = new Runnable() {
@@ -185,6 +184,9 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
                         Util.resolveColor(context, R.attr.colorPrimary));
 
                 mAutoFullscreen = a.getBoolean(R.styleable.EasyVideoPlayer_evp_autoFullscreen, false);
+
+                mVideoSizeLoading = a.getFloat(R.styleable.EasyVideoPlayer_evp_videoSizeLoading, 16f / 10f);
+
             } finally {
                 a.recycle();
             }
@@ -595,13 +597,16 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         this.mAutoFullscreen = autoFullscreen;
     }
 
+    @Override
+    public void setVideoSizeLoading(float videoSizeLoading) {
+        this.mVideoSizeLoading = videoSizeLoading;
+    }
+
     // Surface listeners
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
         LOG("Surface texture available: %dx%d", width, height);
-        mInitialTextureWidth = width;
-        mInitialTextureHeight = height;
         mSurfaceAvailable = true;
         mSurface = new Surface(surfaceTexture);
         if (mIsPrepared) {
@@ -614,7 +619,6 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) {
         LOG("Surface texture changed: %dx%d", width, height);
-        adjustAspectRatio(width, height, mPlayer.getVideoWidth(), mPlayer.getVideoHeight());
     }
 
     @Override
@@ -685,7 +689,6 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     @Override
     public void onVideoSizeChanged(MediaPlayer mediaPlayer, int width, int height) {
         LOG("Video size changed: %dx%d", width, height);
-        adjustAspectRatio(mInitialTextureWidth, mInitialTextureHeight, width, height);
     }
 
     @Override
@@ -920,8 +923,14 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         }
     }
 
-    private void adjustAspectRatio(int viewWidth, int viewHeight, int videoWidth, int videoHeight) {
-        final double aspectRatio = (double) videoHeight / videoWidth;
+    private void adjustAspectRatio(int viewWidth, int viewHeight, int videoWidth, int videoHeight, int widthMeasureSpec, int heightMeasureSpec) {
+        final double aspectRatio;
+        if (videoWidth == 0 || videoHeight == 0) {
+            aspectRatio = 1f / mVideoSizeLoading;
+        } else {
+            aspectRatio = (double) videoHeight / videoWidth;
+        }
+
         int newWidth, newHeight;
 
         if (viewHeight > (int) (viewWidth * aspectRatio)) {
@@ -934,14 +943,40 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
             newHeight = viewHeight;
         }
 
-        final int xoff = (viewWidth - newWidth) / 2;
-        final int yoff = (viewHeight - newHeight) / 2;
+        int xoff = 0;
+        int yoff = 0;
+        ViewGroup.LayoutParams layoutParamsTexture = mTextureView.getLayoutParams();
+        if (widthMeasureSpec != 0 && MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.AT_MOST) {
+            ViewGroup.LayoutParams layoutParamsControls = mControlsFrame.getLayoutParams();
+            layoutParamsControls.width = newWidth;
+            mControlsFrame.setLayoutParams(layoutParamsControls);
+
+            layoutParamsTexture.width = newWidth;
+            newWidth = viewWidth;
+        } else {
+            xoff = (viewWidth - newWidth) / 2;
+        }
+
+
+        if (heightMeasureSpec != 0 && MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
+            layoutParamsTexture.height = newHeight;
+            newHeight = viewHeight;
+        } else {
+            yoff = (viewHeight - newHeight) / 2;
+        }
 
         final Matrix txform = new Matrix();
         mTextureView.getTransform(txform);
         txform.setScale((float) newWidth / viewWidth, (float) newHeight / viewHeight);
         txform.postTranslate(xoff, yoff);
         mTextureView.setTransform(txform);
+        mTextureView.setLayoutParams(layoutParamsTexture);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        adjustAspectRatio(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec), mPlayer.getVideoWidth(), mPlayer.getVideoHeight(),widthMeasureSpec,heightMeasureSpec);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     private void throwError(Exception e) {
