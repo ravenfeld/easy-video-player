@@ -644,9 +644,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         LOG("onPrepared()");
-        if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
-            mBtnPlayPause.setVisibility(View.VISIBLE);
-        }
+
         mIsPrepared = true;
         if (mCallback != null)
             mCallback.onPrepared(this);
@@ -683,8 +681,18 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
                 mSeeker.setSecondaryProgress(percentSeeker);
                 if (percentSeeker < mediaPlayer.getCurrentPosition()) {
                     mProgressFrame.setVisibility(VISIBLE);
-                } else {
+                    if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
+                        mBtnPlayPause.setVisibility(View.INVISIBLE);
+                    }
+                } else if (mProgressFrame.getVisibility() == VISIBLE) {
                     mProgressFrame.setVisibility(INVISIBLE);
+                    if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
+                        if (isControlsShown()) {
+                            mBtnPlayPause.setVisibility(View.VISIBLE);
+                        } else {
+                            mBtnPlayPause.setVisibility(View.INVISIBLE);
+                        }
+                    }
                 }
             }
         }
