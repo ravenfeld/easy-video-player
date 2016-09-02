@@ -108,8 +108,6 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     private boolean mSurfaceAvailable;
     private boolean mIsPrepared;
     private boolean mWasPlaying;
-    private int mInitialTextureWidth;
-    private int mInitialTextureHeight;
 
     private Handler mHandler;
 
@@ -579,8 +577,6 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
         LOG("Surface texture available: %dx%d", width, height);
-        mInitialTextureWidth = width;
-        mInitialTextureHeight = height;
         mSurfaceAvailable = true;
         mSurface = new Surface(surfaceTexture);
         if (mIsPrepared) {
@@ -593,7 +589,6 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) {
         LOG("Surface texture changed: %dx%d", width, height);
-        adjustAspectRatio(width, height, mPlayer.getVideoWidth(), mPlayer.getVideoHeight());
     }
 
     @Override
@@ -664,7 +659,6 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     @Override
     public void onVideoSizeChanged(MediaPlayer mediaPlayer, int width, int height) {
         LOG("Video size changed: %dx%d", width, height);
-        adjustAspectRatio(mInitialTextureWidth, mInitialTextureHeight, width, height);
     }
 
     @Override
@@ -899,7 +893,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         }
     }
 
-    private void adjustAspectRatio(int viewWidth, int viewHeight, int videoWidth, int videoHeight) {
+    private void adjustAspectRatio(int viewWidth, int viewHeight, int videoWidth, int videoHeight, int widthMeasureSpec, int heightMeasureSpec ) {
         final double aspectRatio = (double) videoHeight / videoWidth;
         int newWidth, newHeight;
 
@@ -913,14 +907,40 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
             newHeight = viewHeight;
         }
 
-        final int xoff = (viewWidth - newWidth) / 2;
-        final int yoff = (viewHeight - newHeight) / 2;
+        int xoff = 0;
+        int yoff = 0;
+        ViewGroup.LayoutParams layoutParamsTexture = mTextureView.getLayoutParams();
+        if (widthMeasureSpec != 0 && MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.AT_MOST) {
+            ViewGroup.LayoutParams layoutParamsControls = mControlsFrame.getLayoutParams();
+            layoutParamsControls.width = newWidth;
+            mControlsFrame.setLayoutParams(layoutParamsControls);
+
+            layoutParamsTexture.width = newWidth;
+            newWidth = viewWidth;
+        } else {
+            xoff = (viewWidth - newWidth) / 2;
+        }
+
+
+        if (heightMeasureSpec != 0 && MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
+            layoutParamsTexture.height = newHeight;
+            newHeight = viewHeight;
+        } else {
+            yoff = (viewHeight - newHeight) / 2;
+        }
 
         final Matrix txform = new Matrix();
         mTextureView.getTransform(txform);
         txform.setScale((float) newWidth / viewWidth, (float) newHeight / viewHeight);
         txform.postTranslate(xoff, yoff);
         mTextureView.setTransform(txform);
+        mTextureView.setLayoutParams(layoutParamsTexture);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        adjustAspectRatio(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec), mPlayer.getVideoWidth(), mPlayer.getVideoHeight(),widthMeasureSpec,heightMeasureSpec);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     private void throwError(Exception e) {
