@@ -171,7 +171,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
                     mSource = Uri.parse(source);
 
                 //noinspection WrongConstant
-                mLeftAction = a.getInteger(R.styleable.EasyVideoPlayer_evp_leftAction, LEFT_ACTION_RESTART);
+                mLeftAction = a.getInteger(R.styleable.EasyVideoPlayer_evp_leftAction, LEFT_ACTION_NONE);
                 //noinspection WrongConstant
                 mRightAction = a.getInteger(R.styleable.EasyVideoPlayer_evp_rightAction, RIGHT_ACTION_NONE);
 
@@ -196,7 +196,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
                 a.recycle();
             }
         } else {
-            mLeftAction = LEFT_ACTION_RESTART;
+            mLeftAction = LEFT_ACTION_NONE;
             mRightAction = RIGHT_ACTION_NONE;
             mHideControlsOnPlay = true;
             mAutoPlay = false;
@@ -411,6 +411,9 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
                             setFullscreen(false);
                     }
                 }).start();
+        if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
+            mBtnPlayPause.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -431,6 +434,9 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
                             mControlsFrame.setVisibility(View.INVISIBLE);
                     }
                 }).start();
+        if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
+            mBtnPlayPause.setVisibility(View.INVISIBLE);
+        }
     }
 
     @CheckResult
@@ -614,6 +620,9 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     public void onPrepared(MediaPlayer mediaPlayer) {
         LOG("onPrepared()");
         mProgressFrame.setVisibility(View.INVISIBLE);
+        if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
+            mBtnPlayPause.setVisibility(View.VISIBLE);
+        }
         mIsPrepared = true;
         if (mCallback != null)
             mCallback.onPrepared(this);
@@ -777,7 +786,13 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         mBtnRetry.setOnClickListener(this);
         mBtnRetry.setText(mRetryText);
 
-        mBtnPlayPause = (ImageButton) mControlsFrame.findViewById(R.id.btnPlayPause);
+        if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
+            mBtnPlayPause = (ImageButton) li.inflate(R.layout.evp_include_btn_play_pause, this, false);
+            addView(mBtnPlayPause);
+        } else {
+            mBtnPlayPause = (ImageButton) mControlsFrame.findViewById(R.id.btnPlayPause);
+            mBtnPlayPause.setVisibility(VISIBLE);
+        }
         mBtnPlayPause.setOnClickListener(this);
         mBtnPlayPause.setImageDrawable(mPlayDrawable);
 
