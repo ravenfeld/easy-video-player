@@ -131,6 +131,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     private boolean mControlsDisabled;
     private int mThemeColor = 0;
     private boolean mAutoFullscreen = false;
+    private float mVideoSizeLoading = 16f / 10f;
 
     // Runnable used to run code on an interval to update counters and seeker
     private final Runnable mUpdateCounters = new Runnable() {
@@ -190,6 +191,9 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
                         Util.resolveColor(context, R.attr.colorPrimary));
 
                 mAutoFullscreen = a.getBoolean(R.styleable.EasyVideoPlayer_evp_autoFullscreen, false);
+
+                mVideoSizeLoading = a.getFloat(R.styleable.EasyVideoPlayer_evp_videoSizeLoading, 16f / 10f);
+
             } finally {
                 a.recycle();
             }
@@ -572,6 +576,11 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         this.mAutoFullscreen = autoFullscreen;
     }
 
+    @Override
+    public void setVideoSizeLoading(float videoSizeLoading) {
+        this.mVideoSizeLoading = videoSizeLoading;
+    }
+
     // Surface listeners
 
     @Override
@@ -893,8 +902,14 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         }
     }
 
-    private void adjustAspectRatio(int viewWidth, int viewHeight, int videoWidth, int videoHeight, int widthMeasureSpec, int heightMeasureSpec ) {
-        final double aspectRatio = (double) videoHeight / videoWidth;
+    private void adjustAspectRatio(int viewWidth, int viewHeight, int videoWidth, int videoHeight, int widthMeasureSpec, int heightMeasureSpec) {
+        final double aspectRatio;
+        if (videoWidth == 0 || videoHeight == 0) {
+            aspectRatio = 1f / mVideoSizeLoading;
+        } else {
+            aspectRatio = (double) videoHeight / videoWidth;
+        }
+
         int newWidth, newHeight;
 
         if (viewHeight > (int) (viewWidth * aspectRatio)) {

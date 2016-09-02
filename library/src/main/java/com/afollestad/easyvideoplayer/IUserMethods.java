@@ -105,4 +105,6 @@ interface IUserMethods {
     void release();
 
     void setAutoFullscreen(boolean autoFullScreen);
+
+    void setVideoSizeLoading(float videoSizeLoading);
 }

@@ -35,6 +35,7 @@
 
         <attr name="evp_autoFullscreen" format="boolean" />
 
+        <attr name="evp_videoSizeLoading" format="float" />
     </declare-styleable>
 
 </resources>
