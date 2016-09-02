@@ -638,7 +638,6 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         LOG("onPrepared()");
-        mProgressFrame.setVisibility(View.INVISIBLE);
         mIsPrepared = true;
         if (mCallback != null)
             mCallback.onPrepared(this);
@@ -670,7 +669,15 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
             mCallback.onBuffering(percent);
         if (mSeeker != null) {
             if (percent == 100) mSeeker.setSecondaryProgress(0);
-            else mSeeker.setSecondaryProgress(mSeeker.getMax() * (percent / 100));
+            else {
+                int percentSeeker = (int) (mSeeker.getMax() * (percent / 100f));
+                mSeeker.setSecondaryProgress(percentSeeker);
+                if (percentSeeker < mediaPlayer.getCurrentPosition()) {
+                    mProgressFrame.setVisibility(VISIBLE);
+                } else {
+                    mProgressFrame.setVisibility(INVISIBLE);
+                }
+            }
         }
     }
 
