@@ -139,18 +139,10 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     private final Runnable mUpdateCounters = new Runnable() {
         @Override
         public void run() {
-            if (mHandler == null || !mIsPrepared || mSeeker == null || mPlayer == null)
+            if (mHandler == null || !mIsPrepared)
                 return;
-            int pos = mPlayer.getCurrentPosition();
-            final int dur = mPlayer.getDuration();
-            if (pos > dur) pos = dur;
-            mLabelPosition.setText(Util.getDurationString(pos, false));
-            mLabelDuration.setText(Util.getDurationString(dur - pos, true));
-            mSeeker.setProgress(pos);
-            mSeeker.setMax(dur);
+            updateUi();
 
-            if (mProgressCallback != null)
-                mProgressCallback.onVideoProgressUpdate(pos, dur);
             if (mHandler != null)
                 mHandler.postDelayed(this, UPDATE_INTERVAL);
         }
@@ -391,6 +383,21 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         }
     }
 
+    private void updateUi() {
+        if (mPlayer == null || mSeeker == null || mLabelPosition == null || mLabelDuration == null)
+            return;
+
+        int pos = mPlayer.getCurrentPosition();
+        final int dur = mPlayer.getDuration();
+        if (pos > dur) pos = dur;
+        mLabelPosition.setText(Util.getDurationString(pos, false));
+        mLabelDuration.setText(Util.getDurationString(dur - pos, true));
+        mSeeker.setProgress(pos);
+        mSeeker.setMax(dur);
+        if (mProgressCallback != null)
+            mProgressCallback.onVideoProgressUpdate(pos, dur);
+    }
+
     private void setControlsEnabled(boolean enabled) {
         if (mSeeker == null) return;
         mSeeker.setEnabled(enabled);
@@ -524,6 +531,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     public void seekTo(@IntRange(from = 0, to = Integer.MAX_VALUE) int pos) {
         if (mPlayer == null) return;
         mPlayer.seekTo(pos);
+        updateUi();
     }
 
     public void setVolume(@FloatRange(from = 0f, to = 1f) float leftVolume, @FloatRange(from = 0f, to = 1f) float rightVolume) {
