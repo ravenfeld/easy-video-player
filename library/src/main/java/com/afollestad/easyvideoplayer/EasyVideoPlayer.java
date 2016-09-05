@@ -135,6 +135,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     private int mThemeColor = 0;
     private boolean mAutoFullscreen = false;
     private float mVideoSizeLoading = 16f / 10f;
+    private boolean isVideoLocal = true;
 
     // Runnable used to run code on an interval to update counters and seeker
     private final Runnable mUpdateCounters = new Runnable() {
@@ -364,6 +365,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
             if (mSource.getScheme() != null &&
                     (mSource.getScheme().equals("http") || mSource.getScheme().equals("https"))) {
                 LOG("Loading web URI: " + mSource.toString());
+                isVideoLocal = false;
                 mPlayer.setDataSource(mSource.toString());
             } else if (mSource.getScheme() != null && (mSource.getScheme().equals("file") && mSource.getPath().contains("/android_assets/"))) {
                 LOG("Loading assets URI: " + mSource.toString());
@@ -656,6 +658,9 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         mSeeker.setMax(mediaPlayer.getDuration());
         setControlsEnabled(true);
 
+        if (isVideoLocal) {
+            onBufferingUpdate(mPlayer, 100);
+        }
         if (mAutoPlay) {
             if (!mControlsDisabled && mHideControlsOnPlay)
                 hideControls();
@@ -681,8 +686,10 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         if (mCallback != null)
             mCallback.onBuffering(percent);
         if (mSeeker != null) {
-            if (percent == 100) mSeeker.setSecondaryProgress(0);
-            else {
+            if (percent == 100) {
+                mSeeker.setSecondaryProgress(0);
+                displayIconPlayPause();
+            } else {
                 int percentSeeker = (int) (mSeeker.getMax() * (percent / 100f));
                 mSeeker.setSecondaryProgress(percentSeeker);
                 if (percentSeeker < mediaPlayer.getCurrentPosition()) {
@@ -690,15 +697,22 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
                     if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
                         mBtnPlayPause.setVisibility(View.INVISIBLE);
                     }
-                } else if (mProgressFrame.getVisibility() == VISIBLE) {
-                    mProgressFrame.setVisibility(INVISIBLE);
-                    if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
-                        if (isControlsShown()) {
-                            mBtnPlayPause.setVisibility(View.VISIBLE);
-                        } else {
-                            mBtnPlayPause.setVisibility(View.INVISIBLE);
-                        }
-                    }
+                } else {
+                    displayIconPlayPause();
+                }
+            }
+        }
+    }
+
+    private void displayIconPlayPause() {
+        if (mProgressFrame.getVisibility() == VISIBLE) {
+            mProgressFrame.setVisibility(INVISIBLE);
+            if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
+                if (isControlsShown()) {
+                    Log.e("TEST", "displayIconPlayPause");
+                    mBtnPlayPause.setVisibility(View.VISIBLE);
+                } else {
+                    mBtnPlayPause.setVisibility(View.INVISIBLE);
                 }
             }
         }
