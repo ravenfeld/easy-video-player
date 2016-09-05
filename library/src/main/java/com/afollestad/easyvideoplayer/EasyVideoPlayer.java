@@ -709,7 +709,6 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
             mProgressFrame.setVisibility(INVISIBLE);
             if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
                 if (isControlsShown()) {
-                    Log.e("TEST", "displayIconPlayPause");
                     mBtnPlayPause.setVisibility(View.VISIBLE);
                 } else {
                     mBtnPlayPause.setVisibility(View.INVISIBLE);
@@ -934,11 +933,13 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     // Utilities
 
     private static void LOG(String message, Object... args) {
-        try {
-            if (args != null)
-                message = String.format(message, args);
-            Log.d("EasyVideoPlayer", message);
-        } catch (Exception ignored) {
+        if (BuildConfig.DEBUG) {
+            try {
+                if (args != null)
+                    message = String.format(message, args);
+                Log.d("EasyVideoPlayer", message);
+            } catch (Exception ignored) {
+            }
         }
     }
 
