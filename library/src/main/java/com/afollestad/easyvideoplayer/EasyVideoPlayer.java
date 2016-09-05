@@ -17,6 +17,8 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.CheckResult;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
@@ -665,6 +667,10 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         } else {
             // Hack to show first frame, is there another way?
             mPlayer.start();
+            if (mInitialPosition > 0) {
+                seekTo(mInitialPosition);
+                mInitialPosition = -1;
+            }
             mPlayer.pause();
         }
     }
@@ -1073,5 +1079,64 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
                 mClickFrame.setSystemUiVisibility(flags);
             }
         }
+    }
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+
+        SavedState ss = new SavedState(superState);
+        ss.position = mPlayer.getCurrentPosition();
+        ss.play = mPlayer.isPlaying();
+
+        return ss;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof SavedState)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+
+        SavedState ss = (SavedState) state;
+        super.onRestoreInstanceState(ss.getSuperState());
+
+        this.mInitialPosition = ss.position;
+        this.mAutoPlay = ss.play;
+
+    }
+
+    static class SavedState extends BaseSavedState {
+        int position;
+        boolean play;
+
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        private SavedState(Parcel in) {
+            super(in);
+            this.position = in.readInt();
+            this.play = in.readInt() != 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeInt(this.position);
+            out.writeInt(this.play ? 1 : 0);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
     }
 }
