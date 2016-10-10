@@ -24,4 +24,9 @@ public interface EasyVideoCallback {
     void onRetry(EasyVideoPlayer player, Uri source);
 
     void onSubmit(EasyVideoPlayer player, Uri source);
+
+    void onFullScreen(EasyVideoPlayer player);
+
+    void onFullScreenExit(EasyVideoPlayer player);
+    void onCreatedView(EasyVideoPlayer player);
 }

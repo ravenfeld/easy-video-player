@@ -1,19 +1,259 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.afollestad.easyvideoplayer.EasyVideoPlayer xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/player"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:evp_autoFullscreen="false"
-    app:evp_autoPlay="false"
-    app:evp_customLabelText="Hello!"
-    app:evp_disableControls="false"
-    app:evp_hideControlsOnPlay="true"
-    app:evp_leftAction="restart"
-    app:evp_pauseDrawable="@drawable/evp_action_pause"
-    app:evp_playDrawable="@drawable/evp_action_play"
-    app:evp_restartDrawable="@drawable/evp_action_restart"
-    app:evp_retryText="@string/evp_retry"
-    app:evp_rightAction="submit"
-    app:evp_source="http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"
-    app:evp_submitText="@string/evp_submit" />
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/holo_blue_bright"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1 refzez" />
+
+        <com.afollestad.easyvideoplayer.EasyVideo
+            android:id="@+id/player"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:evp_autoFullscreen="true"
+            app:evp_autoPlay="false"
+            app:evp_disableControls="false"
+            app:evp_hideControlsOnPlay="true"
+            app:evp_pauseDrawable="@drawable/evp_action_pause"
+            app:evp_playDrawable="@drawable/evp_action_play"
+            app:evp_rightAction="none"
+            app:evp_source="asset://big_buck_bunny.mp4" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2 drefrf" />
+
+        <com.afollestad.easyvideoplayer.EasyVideo
+            android:id="@+id/player2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:evp_autoFullscreen="true"
+            app:evp_autoPlay="false"
+            app:evp_disableControls="false"
+            app:evp_hideControlsOnPlay="true"
+            app:evp_pauseDrawable="@drawable/evp_action_pause"
+            app:evp_playDrawable="@drawable/evp_action_play"
+            app:evp_rightAction="none"
+            app:evp_source="http://vodp.eurosport.com/ebu/2016/09/02/090216_the_coach_131_02091120-889122-700-512-288.mp4" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <com.afollestad.easyvideoplayer.EasyVideo
+            android:id="@+id/player3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:evp_autoFullscreen="true"
+            app:evp_autoPlay="false"
+            app:evp_disableControls="false"
+            app:evp_hideControlsOnPlay="true"
+            app:evp_pauseDrawable="@drawable/evp_action_pause"
+            app:evp_playDrawable="@drawable/evp_action_play"
+            app:evp_rightAction="none"
+            app:evp_source="asset://big_buck_bunny.mp4" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drefrf" />
+    </LinearLayout>
+</ScrollView>

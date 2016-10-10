@@ -55,6 +55,14 @@ interface IUserMethods {
 
     void setPauseDrawableRes(@DrawableRes int res);
 
+    void setFullScreenDrawable(@NonNull Drawable drawable);
+
+    void setFullScreenDrawableRes(@DrawableRes int res);
+
+    void setFullScreenExitDrawable(@NonNull Drawable drawable);
+
+    void setFullScreenExitDrawableRes(@DrawableRes int res);
+
     void setThemeColor(@ColorInt int color);
 
     void setThemeColorRes(@ColorRes int colorRes);
@@ -107,4 +115,6 @@ interface IUserMethods {
     void setAutoFullscreen(boolean autoFullScreen);
 
     void setVideoSizeLoading(float videoSizeLoading);
+
+    void setVideoOnly(boolean videoOnly);
 }

@@ -3,10 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#BF000000"
     android:clickable="true"
     android:paddingBottom="@dimen/evp_content_inset_half"
-    android:paddingTop="@dimen/evp_content_inset">
+    android:paddingTop="@dimen/evp_content_inset_half">
 
     <LinearLayout
         android:id="@+id/seeker_layout"
@@ -48,6 +49,16 @@
             tools:ignore="UnusedAttribute"
             tools:text="-05:00"/>
 
+        <ImageButton
+            android:id="@+id/btnFullScreen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/evp_content_inset"
+            android:layout_marginRight="@dimen/evp_content_inset"
+            android:background="?selectableItemBackground"
+            app:srcCompat="@drawable/ic_fullscreen"
+            />
+
     </LinearLayout>
 
     <ImageButton
@@ -60,8 +71,8 @@
         android:background="?selectableItemBackground"
         android:paddingLeft="@dimen/evp_button_size"
         android:paddingRight="@dimen/evp_button_size"
-        android:src="@drawable/evp_action_restart"
-        tools:ignore="ContentDescription" />
+        app:srcCompat="@drawable/evp_action_restart"
+        tools:ignore="ContentDescription"/>
 
     <TextView
         android:id="@+id/btnRetry"
@@ -79,7 +90,7 @@
         android:textAllCaps="false"
         android:textColor="#fff"
         android:textSize="@dimen/evp_text_size_medium"
-        tools:ignore="ContentDescription,UnusedAttribute" />
+        tools:ignore="ContentDescription,UnusedAttribute"/>
 
     <include layout="@layout/evp_include_btn_play_pause"/>
 
@@ -93,7 +104,7 @@
         android:textColor="#fff"
         android:textSize="@dimen/evp_text_size_small"
         tools:ignore="UnusedAttribute"
-        tools:text="-09:12" />
+        tools:text="-09:12"/>
 
     <TextView
         android:id="@+id/btnSubmit"
@@ -113,7 +124,7 @@
         android:textAllCaps="false"
         android:textColor="#fff"
         android:textSize="@dimen/evp_text_size_medium"
-        tools:ignore="ContentDescription,UnusedAttribute" />
+        tools:ignore="ContentDescription,UnusedAttribute"/>
 
     <TextView
         android:id="@+id/labelCustom"
@@ -130,6 +141,6 @@
         android:textColor="#fff"
         android:textSize="@dimen/evp_text_size_medium"
         tools:ignore="UnusedAttribute"
-        tools:text="-00:30" />
+        tools:text="-00:30"/>
 
 </RelativeLayout>

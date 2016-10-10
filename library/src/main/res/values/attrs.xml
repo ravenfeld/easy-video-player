@@ -25,6 +25,8 @@
         <attr name="evp_restartDrawable" format="reference" />
         <attr name="evp_playDrawable" format="reference" />
         <attr name="evp_pauseDrawable" format="reference" />
+        <attr name="evp_fullscreenDrawable" format="reference" />
+        <attr name="evp_fullscreenExitDrawable" format="reference" />
 
         <attr name="evp_hideControlsOnPlay" format="boolean" />
         <attr name="evp_autoPlay" format="boolean" />
