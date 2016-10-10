@@ -18,6 +18,7 @@ android {
         targetSdkVersion TARGET_SDK
         versionCode 13
         versionName PUBLISH_VERSION
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
