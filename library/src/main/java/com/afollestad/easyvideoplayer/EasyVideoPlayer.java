@@ -90,7 +90,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
 
     public EasyVideoPlayer(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context, attrs);
+        init(context);
     }
 
     private TextureView mTextureView;
@@ -122,7 +122,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     private EasyVideoCallback mCallback;
     private EasyVideoProgressCallback mProgressCallback;
     @LeftAction
-    private int mLeftAction = LEFT_ACTION_RESTART;
+    private int mLeftAction = LEFT_ACTION_NONE;
     @RightAction
     private int mRightAction = RIGHT_ACTION_NONE;
     private CharSequence mRetryText;
@@ -135,9 +135,9 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     private CharSequence mCustomLabelText;
     private CharSequence mBottomLabelText;
     private boolean mHideControlsOnPlay = true;
-    private boolean mAutoPlay;
+    private boolean mAutoPlay = false;
     private int mInitialPosition = -1;
-    private boolean mControlsDisabled;
+    private boolean mControlsDisabled = false;
     private int mThemeColor = 0;
     private boolean mAutoFullscreen = false;
     private float mVideoSizeLoading = 16f / 10f;
@@ -159,68 +159,14 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     };
 
 
-    private void init(Context context, AttributeSet attrs) {
+    private void init(Context context) {
         Log.e(TAG, "init: ");
         setBackgroundColor(Color.BLACK);
 
-        if (attrs != null) {
-            TypedArray a = context.getTheme().obtainStyledAttributes(
-                    attrs,
-                    R.styleable.EasyVideoPlayer,
-                    0, 0);
-            try {
-
-                String source = a.getString(R.styleable.EasyVideoPlayer_evp_source);
-                if (source != null && !source.trim().isEmpty())
-                    mSource = Uri.parse(source);
-
-                //noinspection WrongConstant
-                mLeftAction = a.getInteger(R.styleable.EasyVideoPlayer_evp_leftAction, LEFT_ACTION_NONE);
-                //noinspection WrongConstant
-                mRightAction = a.getInteger(R.styleable.EasyVideoPlayer_evp_rightAction, RIGHT_ACTION_NONE);
-
-                mCustomLabelText = a.getText(R.styleable.EasyVideoPlayer_evp_customLabelText);
-                mRetryText = a.getText(R.styleable.EasyVideoPlayer_evp_retryText);
-                mSubmitText = a.getText(R.styleable.EasyVideoPlayer_evp_submitText);
-                mBottomLabelText = a.getText(R.styleable.EasyVideoPlayer_evp_bottomText);
-
-                int restartDrawableResId = a.getResourceId(R.styleable.EasyVideoPlayer_evp_restartDrawable, -1);
-                int playDrawableResId = a.getResourceId(R.styleable.EasyVideoPlayer_evp_playDrawable, -1);
-                int pauseDrawableResId = a.getResourceId(R.styleable.EasyVideoPlayer_evp_pauseDrawable, -1);
-
-                if (restartDrawableResId != -1) {
-                    mRestartDrawable = AppCompatResources.getDrawable(context, restartDrawableResId);
-                }
-                if (playDrawableResId != -1) {
-                    mPlayDrawable = AppCompatResources.getDrawable(context, playDrawableResId);
-                }
-                if (pauseDrawableResId != -1) {
-                    mPauseDrawable = AppCompatResources.getDrawable(context, pauseDrawableResId);
-                }
-
-                mHideControlsOnPlay = a.getBoolean(R.styleable.EasyVideoPlayer_evp_hideControlsOnPlay, true);
-                mAutoPlay = a.getBoolean(R.styleable.EasyVideoPlayer_evp_autoPlay, false);
-                mControlsDisabled = a.getBoolean(R.styleable.EasyVideoPlayer_evp_disableControls, false);
-
-                mThemeColor = a.getColor(R.styleable.EasyVideoPlayer_evp_themeColor,
-                        Util.resolveColor(context, R.attr.colorPrimary));
-
-                mAutoFullscreen = a.getBoolean(R.styleable.EasyVideoPlayer_evp_autoFullscreen, false);
-
-                mVideoSizeLoading = a.getFloat(R.styleable.EasyVideoPlayer_evp_videoSizeLoading, 16f / 10f);
-
-            } finally {
-                a.recycle();
-            }
-        } else {
-            mLeftAction = LEFT_ACTION_NONE;
-            mRightAction = RIGHT_ACTION_NONE;
-            mHideControlsOnPlay = true;
-            mAutoPlay = false;
-            mControlsDisabled = false;
+        if (mThemeColor == 0) {
             mThemeColor = Util.resolveColor(context, R.attr.colorPrimary);
-            mAutoFullscreen = false;
         }
+
 
         if (mRetryText == null)
             mRetryText = context.getResources().getText(R.string.evp_retry);
@@ -663,7 +609,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
 
     @Override
     public void release() {
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             Log.d(TAG, "release: ");
         }
         mIsPrepared = false;
@@ -723,14 +669,14 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
 
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) {
-        if(BuildConfig.DEBUG) {
-            Log.d(TAG, "onSurfaceTextureSizeChanged: "+width+" "+height);
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onSurfaceTextureSizeChanged: " + width + " " + height);
         }
     }
 
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             Log.d(TAG, "onSurfaceTextureDestroyed: ");
         }
         mSurfaceAvailable = false;
@@ -747,7 +693,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             Log.d(TAG, "onPrepared: ");
         }
         mIsPrepared = true;
@@ -825,7 +771,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             Log.d(TAG, "onCompletion: ");
         }
         if (mCallback != null)
@@ -839,8 +785,8 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
 
     @Override
     public void onVideoSizeChanged(MediaPlayer mediaPlayer, int width, int height) {
-        if(BuildConfig.DEBUG) {
-            Log.d(TAG, "onVideoSizeChanged: "+width+" "+height);
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onVideoSizeChanged: " + width + " " + height);
         }
     }
 
