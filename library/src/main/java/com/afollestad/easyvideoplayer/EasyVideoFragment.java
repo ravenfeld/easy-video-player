@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 
-public class EasyVideoFragment extends Fragment implements EasyVideoCallback {
+public class EasyVideoFragment extends Fragment implements FullscreenCallback {
 
     private static final String TAG = "EasyVideoFragment";
     private EasyVideoCallback callback;
@@ -68,7 +68,7 @@ public class EasyVideoFragment extends Fragment implements EasyVideoCallback {
         }
 
         if (easyVideoPlayer != null) {
-            easyVideoPlayer.setCallback(this);
+            easyVideoPlayer.setFullScreenCallback(this);
             easyVideoPlayer.setVideoOnly(fullscreen);
             hasPlayer = true;
         }
@@ -89,74 +89,10 @@ public class EasyVideoFragment extends Fragment implements EasyVideoCallback {
         if (easyVideoPlayer != null && getView() != null) {
             ((ViewGroup) easyVideoPlayer.getParent()).removeView(easyVideoPlayer);
             ((FrameLayout) getView()).addView(easyVideoPlayer);
-            easyVideoPlayer.setCallback(this);
+            easyVideoPlayer.setFullScreenCallback(this);
             hasPlayer = true;
         } else {
             hasPlayer = false;
-        }
-    }
-
-
-    @Override
-    public void onStarted(EasyVideoPlayer player) {
-        if (callback != null) {
-            callback.onStarted(player);
-        }
-    }
-
-    @Override
-    public void onPaused(EasyVideoPlayer player) {
-        if (callback != null) {
-            callback.onPaused(player);
-        }
-    }
-
-    @Override
-    public void onPreparing(EasyVideoPlayer player) {
-        if (callback != null) {
-            callback.onPreparing(player);
-        }
-    }
-
-    @Override
-    public void onPrepared(EasyVideoPlayer player) {
-        if (callback != null) {
-            callback.onPrepared(player);
-        }
-    }
-
-    @Override
-    public void onBuffering(int percent) {
-        if (callback != null) {
-            callback.onBuffering(percent);
-        }
-    }
-
-    @Override
-    public void onError(EasyVideoPlayer player, Exception e) {
-        if (callback != null) {
-            callback.onError(player, e);
-        }
-    }
-
-    @Override
-    public void onCompletion(EasyVideoPlayer player) {
-        if (callback != null) {
-            callback.onCompletion(player);
-        }
-    }
-
-    @Override
-    public void onRetry(EasyVideoPlayer player, Uri source) {
-        if (callback != null) {
-            callback.onRetry(player, source);
-        }
-    }
-
-    @Override
-    public void onSubmit(EasyVideoPlayer player, Uri source) {
-        if (callback != null) {
-            callback.onSubmit(player, source);
         }
     }
 
@@ -175,10 +111,6 @@ public class EasyVideoFragment extends Fragment implements EasyVideoCallback {
         hasPlayer = false;
     }
 
-    @Override
-    public void onCreatedView(EasyVideoPlayer player) {
-
-    }
 
     @Override
     public void onDetach() {

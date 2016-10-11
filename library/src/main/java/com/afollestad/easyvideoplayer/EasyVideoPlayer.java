@@ -120,6 +120,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
 
     private Uri mSource;
     private EasyVideoCallback mCallback;
+    private FullscreenCallback mFullscreenCallback;
     private EasyVideoProgressCallback mProgressCallback;
     @LeftAction
     private int mLeftAction = LEFT_ACTION_NONE;
@@ -196,6 +197,10 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     @Override
     public void setCallback(@NonNull EasyVideoCallback callback) {
         mCallback = callback;
+    }
+
+    public void setFullScreenCallback(@NonNull FullscreenCallback callback) {
+        mFullscreenCallback = callback;
     }
 
     @Override
@@ -955,9 +960,11 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
                 mInitialPosition = mInitialPosition > getCurrentPosition() ? mInitialPosition : getCurrentPosition();
                 mWasPlaying = isPlaying();
                 if (mCallback != null) mCallback.onFullScreen(this);
+                if (mFullscreenCallback != null) mFullscreenCallback.onFullScreen(this);
             } else {
                 ((AppCompatActivity) getContext()).onBackPressed();
                 if (mCallback != null) mCallback.onFullScreenExit(this);
+                if (mFullscreenCallback != null) mFullscreenCallback.onFullScreenExit(this);
                 isVideoOnly = false;
             }
             setVideoOnly(isVideoOnly);
