@@ -20,16 +20,14 @@ public class EasyVideoFragment extends Fragment implements FullscreenCallback {
     private EasyVideoPlayer easyVideoPlayer;
     private boolean hasPlayer = false;
     private boolean fullscreen;
-    private AttributeSet attributeSet;
 
 
-    public static EasyVideoFragment newInstant(boolean fullscreen, AttributeSet attributeSet, Uri source) {
+    public static EasyVideoFragment newInstance(boolean fullscreen, Uri source) {
         EasyVideoFragment fragment = new EasyVideoFragment();
         Bundle args = new Bundle();
         args.putBoolean("fullscreen", fullscreen);
         args.putString("source", source.toString());
         fragment.setArguments(args);
-        fragment.attributeSet = attributeSet;
         return fragment;
     }
 

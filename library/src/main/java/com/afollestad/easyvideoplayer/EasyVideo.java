@@ -138,7 +138,7 @@ public class EasyVideo extends FrameLayout implements EasyVideoCallback {
             if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag("" + getId()) != null) {
                 fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag("" + getId());
             } else if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentById(getId()) == null) {
-                fragment = EasyVideoFragment.newInstant(false, attributeSet, mSource);
+                fragment = EasyVideoFragment.newInstance(false, mSource);
                 ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().add(getId(), fragment).commit();
             } else {
                 fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentById(getId());
@@ -205,7 +205,7 @@ public class EasyVideo extends FrameLayout implements EasyVideoCallback {
 
         if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag("" + getId()) == null) {
 
-            fragment = EasyVideoFragment.newInstant(true, attributeSet, mSource);
+            fragment = EasyVideoFragment.newInstance(true, mSource);
             ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().add(android.R.id.content, fragment, "" + getId()).addToBackStack("VIDEO").commit();
         } else {
             fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag("" + getId());
