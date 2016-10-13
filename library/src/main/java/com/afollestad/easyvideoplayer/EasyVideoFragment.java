@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.AttributeSet;
@@ -17,16 +18,16 @@ public class EasyVideoFragment extends Fragment implements FullscreenCallback {
 
     private static final String TAG = "EasyVideoFragment";
     private EasyVideoCallback callback;
+    private FragmentCallback fragmentCallback;
     private EasyVideoPlayer easyVideoPlayer;
     private boolean hasPlayer = false;
     private boolean fullscreen;
 
 
-    public static EasyVideoFragment newInstance(boolean fullscreen, Uri source) {
+    public static EasyVideoFragment newInstance(boolean fullscreen) {
         EasyVideoFragment fragment = new EasyVideoFragment();
         Bundle args = new Bundle();
         args.putBoolean("fullscreen", fullscreen);
-        args.putString("source", source.toString());
         fragment.setArguments(args);
         return fragment;
     }
@@ -55,8 +56,8 @@ public class EasyVideoFragment extends Fragment implements FullscreenCallback {
             //easyVideoPlayer.setId(View.generateViewId());
             //view.addView(easyVideoPlayer);
             //easyVideoPlayer.setSource(Uri.parse(args.getString("source")));
-            if (callback != null)
-                callback.onCreatedView(easyVideoPlayer);
+            if (fragmentCallback != null)
+                fragmentCallback.onCreatedView(easyVideoPlayer);
         } else {
             view = (FrameLayout) inflater.inflate(R.layout.fragment_empty, container, false);
             if (easyVideoPlayer != null) {
@@ -66,6 +67,7 @@ public class EasyVideoFragment extends Fragment implements FullscreenCallback {
         }
 
         if (easyVideoPlayer != null) {
+            easyVideoPlayer.setCallback(callback);
             easyVideoPlayer.setFullScreenCallback(this);
             easyVideoPlayer.setVideoOnly(fullscreen);
             hasPlayer = true;
@@ -74,8 +76,12 @@ public class EasyVideoFragment extends Fragment implements FullscreenCallback {
         return view;
     }
 
-    public void setCallback(EasyVideoCallback callback) {
+    public void setCallback(@NonNull EasyVideoCallback callback) {
         this.callback = callback;
+    }
+
+    public void setFragmentCallback(@NonNull FragmentCallback fragmentCallback) {
+        this.fragmentCallback = fragmentCallback;
     }
 
     public EasyVideoPlayer getPlayer() {
@@ -87,6 +93,7 @@ public class EasyVideoFragment extends Fragment implements FullscreenCallback {
         if (easyVideoPlayer != null && getView() != null) {
             ((ViewGroup) easyVideoPlayer.getParent()).removeView(easyVideoPlayer);
             ((FrameLayout) getView()).addView(easyVideoPlayer);
+            easyVideoPlayer.setCallback(callback);
             easyVideoPlayer.setFullScreenCallback(this);
             hasPlayer = true;
         } else {
@@ -94,17 +101,25 @@ public class EasyVideoFragment extends Fragment implements FullscreenCallback {
         }
     }
 
+    public EasyVideoPlayer getEasyVideoPlayer() {
+        if (easyVideoPlayer != null && hasPlayer) {
+            return easyVideoPlayer;
+        } else {
+            return null;
+        }
+    }
+
     @Override
     public void onFullScreen(EasyVideoPlayer player) {
-        if (callback != null) {
-            callback.onFullScreen(player);
+        if (fragmentCallback != null) {
+            fragmentCallback.onFullScreen(player);
         }
     }
 
     @Override
     public void onFullScreenExit(EasyVideoPlayer player) {
-        if (callback != null) {
-            callback.onFullScreenExit(player);
+        if (fragmentCallback != null) {
+            fragmentCallback.onFullScreenExit(player);
         }
         hasPlayer = false;
     }
@@ -116,7 +131,7 @@ public class EasyVideoFragment extends Fragment implements FullscreenCallback {
             easyVideoPlayer.detach();
         } else if (easyVideoPlayer != null) {
             easyVideoPlayer.setVideoOnly(false);
-            callback.onFullScreenExit(easyVideoPlayer);
+            fragmentCallback.onFullScreenExit(easyVideoPlayer);
         }
         super.onDetach();
     }

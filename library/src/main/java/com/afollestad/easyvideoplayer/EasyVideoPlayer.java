@@ -106,6 +106,8 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     private ImageButton mBtnRestart;
     private TextView mBtnRetry;
     private ImageButton mBtnPlayPause;
+    private ImageButton mBtnPlayPauseControl;
+    private ImageButton mBtnPlayPauseVideo;
     private ImageButton mBtnFullScreen;
     private TextView mBtnSubmit;
     private TextView mLabelCustom;
@@ -903,15 +905,19 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         mBtnRetry.setOnClickListener(this);
         mBtnRetry.setText(mRetryText);
 
+        mBtnPlayPauseVideo = (ImageButton) li.inflate(R.layout.evp_include_btn_play_pause, this, false);
+        addView(mBtnPlayPauseVideo);
+        mBtnPlayPauseVideo.setOnClickListener(this);
+        mBtnPlayPauseVideo.setImageDrawable(mPlayDrawable);
+        mBtnPlayPauseControl = (ImageButton) mControlsFrame.findViewById(R.id.btnPlayPauseControl);
+        mBtnPlayPauseControl.setOnClickListener(this);
+        mBtnPlayPauseControl.setImageDrawable(mPlayDrawable);
+
         if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
-            mBtnPlayPause = (ImageButton) li.inflate(R.layout.evp_include_btn_play_pause, this, false);
-            addView(mBtnPlayPause);
+            mBtnPlayPause = mBtnPlayPauseVideo;
         } else {
-            mBtnPlayPause = (ImageButton) mControlsFrame.findViewById(R.id.btnPlayPause);
-            mBtnPlayPause.setVisibility(VISIBLE);
+            mBtnPlayPause = mBtnPlayPauseControl;
         }
-        mBtnPlayPause.setOnClickListener(this);
-        mBtnPlayPause.setImageDrawable(mPlayDrawable);
 
         mBtnSubmit = (TextView) mControlsFrame.findViewById(R.id.btnSubmit);
         mBtnSubmit.setOnClickListener(this);
@@ -934,7 +940,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.btnPlayPause) {
+        if (view.getId() == R.id.btnPlayPause || view.getId() == R.id.btnPlayPauseControl) {
             if (mPlayer.isPlaying()) {
                 pause();
             } else {
@@ -1050,6 +1056,18 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
                 mLabelCustom.setVisibility(View.VISIBLE);
                 break;
         }
+        mBtnPlayPause.setVisibility(GONE);
+        if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
+            mBtnPlayPause = mBtnPlayPauseVideo;
+            if(mProgressFrame.getVisibility()!=VISIBLE){
+                mBtnPlayPause.setVisibility(VISIBLE);
+            }
+
+        } else {
+            mBtnPlayPause = mBtnPlayPauseControl;
+            mBtnPlayPause.setVisibility(VISIBLE);
+        }
+
     }
 
     private void adjustAspectRatio(int viewWidth, int viewHeight, int videoWidth, int videoHeight, int widthMeasureSpec, int heightMeasureSpec) {

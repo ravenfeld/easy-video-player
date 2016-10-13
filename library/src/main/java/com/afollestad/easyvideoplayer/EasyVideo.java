@@ -5,12 +5,13 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
-public class EasyVideo extends FrameLayout implements EasyVideoCallback {
+public class EasyVideo extends FrameLayout implements FragmentCallback {
     private static final String TAG = "EasyVideo";
     private EasyVideoCallback callback;
     private boolean init = false;
@@ -138,63 +139,20 @@ public class EasyVideo extends FrameLayout implements EasyVideoCallback {
             if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag("" + getId()) != null) {
                 fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag("" + getId());
             } else if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentById(getId()) == null) {
-                fragment = EasyVideoFragment.newInstance(false, mSource);
+                fragment = EasyVideoFragment.newInstance(false);
                 ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().add(getId(), fragment).commit();
             } else {
                 fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentById(getId());
             }
 
-            fragment.setCallback(this);
+            fragment.setCallback(callback);
+            fragment.setFragmentCallback(this);
+
         }
     }
 
-    public void setCallback(EasyVideoCallback callback) {
+    public void setCallback(@NonNull EasyVideoCallback callback) {
         this.callback = callback;
-    }
-
-    @Override
-    public void onStarted(EasyVideoPlayer player) {
-
-    }
-
-    @Override
-    public void onPaused(EasyVideoPlayer player) {
-
-    }
-
-    @Override
-    public void onPreparing(EasyVideoPlayer player) {
-
-    }
-
-    @Override
-    public void onPrepared(EasyVideoPlayer player) {
-
-    }
-
-    @Override
-    public void onBuffering(int percent) {
-
-    }
-
-    @Override
-    public void onError(EasyVideoPlayer player, Exception e) {
-
-    }
-
-    @Override
-    public void onCompletion(EasyVideoPlayer player) {
-
-    }
-
-    @Override
-    public void onRetry(EasyVideoPlayer player, Uri source) {
-
-    }
-
-    @Override
-    public void onSubmit(EasyVideoPlayer player, Uri source) {
-
     }
 
     @Override
@@ -205,13 +163,15 @@ public class EasyVideo extends FrameLayout implements EasyVideoCallback {
 
         if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag("" + getId()) == null) {
 
-            fragment = EasyVideoFragment.newInstance(true, mSource);
+            fragment = EasyVideoFragment.newInstance(true);
             ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().add(android.R.id.content, fragment, "" + getId()).addToBackStack("VIDEO").commit();
         } else {
             fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag("" + getId());
         }
         fragment.setPlayer(player);
-        fragment.setCallback(this);
+        fragment.setCallback(callback);
+        fragment.setFragmentCallback(this);
+
         if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentById(getId()) != null) {
             fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentById(getId());
             fragment.setPlayer(null);
@@ -224,9 +184,31 @@ public class EasyVideo extends FrameLayout implements EasyVideoCallback {
         if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentById(getId()) != null) {
             EasyVideoFragment fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentById(getId());
             fragment.setPlayer(player);
-            fragment.setCallback(this);
+            fragment.setCallback(callback);
+            fragment.setFragmentCallback(this);
             fragment.onAttach();
         }
+        if (callback != null) {
+            callback.onFullScreenExit(player);
+        }
+    }
+
+    public void setSource(String url) {
+        EasyVideoFragment fragment;
+        mSource = Uri.parse(url);
+        if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentById(getId()) != null) {
+            fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentById(getId());
+            if (fragment.getPlayer() != null) {
+                fragment.getPlayer().setSource(mSource);
+            }
+        }
+        if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag("" + getId()) != null) {
+            fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag("" + getId());
+            if (fragment.getPlayer() != null) {
+                fragment.getPlayer().setSource(mSource);
+            }
+        }
+
     }
 
     @Override

@@ -28,5 +28,4 @@ public interface EasyVideoCallback {
     void onFullScreen(EasyVideoPlayer player);
 
     void onFullScreenExit(EasyVideoPlayer player);
-    void onCreatedView(EasyVideoPlayer player);
 }
