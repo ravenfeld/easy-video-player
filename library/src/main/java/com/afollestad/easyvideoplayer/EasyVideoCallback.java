@@ -2,30 +2,56 @@ package com.afollestad.easyvideoplayer;
 
 import android.net.Uri;
 
-/**
- * @author Aidan Follestad (afollestad)
- */
-public interface EasyVideoCallback {
+import com.afollestad.easyvideoplayer.internal.PlayerView;
 
-    void onStarted(EasyVideoPlayer player);
+public abstract class EasyVideoCallback {
 
-    void onPaused(EasyVideoPlayer player);
+    public void onStarted(PlayerView player){
 
-    void onPreparing(EasyVideoPlayer player);
+    }
 
-    void onPrepared(EasyVideoPlayer player);
+    public void onPaused(PlayerView player){
 
-    void onBuffering(int percent);
+    }
 
-    void onError(EasyVideoPlayer player, Exception e);
+    public void onPreparing(PlayerView player){
 
-    void onCompletion(EasyVideoPlayer player);
+    }
 
-    void onRetry(EasyVideoPlayer player, Uri source);
+    public void onPrepared(PlayerView player){
 
-    void onSubmit(EasyVideoPlayer player, Uri source);
+    }
 
-    void onFullScreen(EasyVideoPlayer player);
+    public void onBuffering(PlayerView player, int percent){
 
-    void onFullScreenExit(EasyVideoPlayer player);
+    }
+
+    public void onError(PlayerView player, Exception e){
+
+    }
+
+    public void onCompletion(PlayerView player){
+
+    }
+
+    public void onRetry(PlayerView player, Uri source){
+
+    }
+
+    public void onSubmit(PlayerView player, Uri source){
+
+    }
+
+    public void onFullScreen(PlayerView player){
+
+    }
+
+    public void onFullScreenExit(PlayerView player){
+
+    }
+
+    public void onVideoProgressUpdate(PlayerView player, int position, int duration){
+
+    }
+
 }

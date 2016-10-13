@@ -1,4 +1,4 @@
-package com.afollestad.easyvideoplayer;
+package com.afollestad.easyvideoplayer.internal;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -9,10 +9,8 @@ import android.support.annotation.AttrRes;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author Aidan Follestad (afollestad)
- */
-class Util {
+
+public class Util {
 
     public static String getDurationString(long durationMs, boolean negativePrefix) {
         return String.format(Locale.getDefault(), "%s%02d:%02d",

@@ -12,20 +12,17 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 
-/**
- * @author Aidan Follestad (afollestad)
- */
-interface IUserMethods {
+import com.afollestad.easyvideoplayer.internal.PlayerView;
+
+public interface IUserMethods {
 
     void setSource(@NonNull Uri source);
 
     void setCallback(@NonNull EasyVideoCallback callback);
 
-    void setProgressCallback(@NonNull EasyVideoProgressCallback callback);
+    void setLeftAction(@PlayerView.LeftAction int action);
 
-    void setLeftAction(@EasyVideoPlayer.LeftAction int action);
-
-    void setRightAction(@EasyVideoPlayer.RightAction int action);
+    void setRightAction(@PlayerView.RightAction int action);
 
     void setCustomLabelText(@Nullable CharSequence text);
 
@@ -41,7 +38,7 @@ interface IUserMethods {
 
     void setSubmitText(@Nullable CharSequence text);
 
-    void setSubmitTextRes(@StringRes int res);
+    void setSubmitTextRes(@StringRes int textRes);
 
     void setRestartDrawable(@NonNull Drawable drawable);
 
@@ -86,6 +83,8 @@ interface IUserMethods {
 
     void disableControls();
 
+    void setEnabledSeekBar(boolean enabled);
+
     @CheckResult
     boolean isPrepared();
 
@@ -115,6 +114,4 @@ interface IUserMethods {
     void setAutoFullscreen(boolean autoFullScreen);
 
     void setVideoSizeLoading(float videoSizeLoading);
-
-    void setVideoOnly(boolean videoOnly);
 }
