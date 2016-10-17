@@ -32,6 +32,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.content.res.AppCompatResources;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -60,7 +61,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnCompletionListener,
         MediaPlayer.OnVideoSizeChangedListener, MediaPlayer.OnErrorListener, View.OnClickListener, SeekBar.OnSeekBarChangeListener {
 
-    private static final String TAG = "EasyVideoPlayer";
+    private static final String TAG = "PlayerView";
 
     @IntDef({LEFT_ACTION_NONE, LEFT_ACTION_RESTART, LEFT_ACTION_RETRY})
     @Retention(RetentionPolicy.SOURCE)
@@ -162,7 +163,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
 
     private void init(Context context) {
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             Log.d(TAG, "init: ");
         }
         setBackgroundColor(Color.BLACK);
@@ -551,11 +552,13 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
             Log.d(TAG, "start: ");
         }
         if (mPlayer == null) return;
-        mPlayer.start();
-        if (mCallback != null) mCallback.onStarted(this);
-        if (mHandler == null) mHandler = new Handler();
-        mHandler.post(mUpdateCounters);
-        mBtnPlayPause.setImageDrawable(mPauseDrawable);
+        if (isPrepared()) {
+            mPlayer.start();
+            if (mCallback != null) mCallback.onStarted(this);
+            if (mHandler == null) mHandler = new Handler();
+            mHandler.post(mUpdateCounters);
+            mBtnPlayPause.setImageDrawable(mPauseDrawable);
+        }
     }
 
     @Override
@@ -588,7 +591,6 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
     @Override
     public void pause() {
-
         if (mPlayer == null || !isPlaying()) return;
         mPlayer.pause();
         if (mCallback != null) mCallback.onPaused(this);
@@ -660,8 +662,6 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         }
     }
 
-    // Surface listeners
-
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
         if (BuildConfig.DEBUG) {
@@ -698,8 +698,6 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
     }
 
-    // Media player listeners
-
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         if (BuildConfig.DEBUG) {
@@ -731,7 +729,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     }
 
     private void getFrame() {
-        if (mPlayer != null && mIsPrepared) {
+        if (isPrepared()) {
             mPlayer.start();
             if (mInitialPosition >= 0) {
                 seekTo(mInitialPosition);
@@ -764,7 +762,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     }
 
     private void displayIconPlayPause() {
-        if (mProgressFrame.getVisibility() == VISIBLE) {
+        if (mProgressFrame != null && mProgressFrame.getVisibility() == VISIBLE) {
             mProgressFrame.setVisibility(INVISIBLE);
             if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
                 if (isControlsShown()) {
@@ -831,8 +829,6 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         throwError(new Exception(errorMsg));
         return false;
     }
-
-    // View events
 
 
     private void onInflate() {
@@ -968,10 +964,12 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
                 if (mCallback != null) mCallback.onFullScreen(this);
                 if (mFullscreenCallback != null) mFullscreenCallback.onFullScreen(this);
             } else {
+                isVideoOnly = false;
+                mWasPlaying = isPlaying();
                 ((AppCompatActivity) getContext()).onBackPressed();
                 if (mCallback != null) mCallback.onFullScreenExit(this);
                 if (mFullscreenCallback != null) mFullscreenCallback.onFullScreenExit(this);
-                isVideoOnly = false;
+
             }
             setVideoOnly(isVideoOnly);
         }
@@ -987,15 +985,31 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
         mWasPlaying = isPlaying();
-        if (mWasPlaying) {
+        if (mWasPlaying && isPrepared()) {
             mPlayer.pause();
         }
     }
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        if (mWasPlaying) {
+        if (mWasPlaying && isPrepared()) {
             mPlayer.start();
+        }
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onAttachedToWindow: ");
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onDetachedFromWindow: ");
         }
     }
 
@@ -1059,7 +1073,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         mBtnPlayPause.setVisibility(GONE);
         if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
             mBtnPlayPause = mBtnPlayPauseVideo;
-            if (mProgressFrame.getVisibility() != VISIBLE) {
+            if (mProgressFrame != null && mProgressFrame.getVisibility() != VISIBLE) {
                 mBtnPlayPause.setVisibility(VISIBLE);
             }
 
@@ -1128,7 +1142,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (mPlayer != null)
+        if (isPrepared())
             adjustAspectRatio(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec), mPlayer.getVideoWidth(), mPlayer.getVideoHeight(), widthMeasureSpec, heightMeasureSpec);
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
@@ -1136,7 +1150,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     private void throwError(Exception e) {
         if (mCallback != null)
             mCallback.onError(this, e);
-        else throw new RuntimeException(e);
+        //else throw new RuntimeException(e);
     }
 
     private static void setTint(@NonNull SeekBar seekBar, @ColorInt int color) {
@@ -1199,10 +1213,14 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         Parcelable superState = super.onSaveInstanceState();
 
         SavedState ss = new SavedState(superState);
-        ss.position = mPlayer.getCurrentPosition();
-        ss.play = mWasPlaying || mPlayer.isPlaying();
+        ss.position = mPlayer.getCurrentPosition() > 0 ? mPlayer.getCurrentPosition() : mInitialPosition;
+        ss.play = mPlayer.getCurrentPosition() > 0 ? mWasPlaying || mPlayer.isPlaying() : mAutoPlay;
         ss.videoOnly = isVideoOnly;
-        ss.source = mSource.toString();
+        ss.source = (mSource != null) ? mSource.toString() : "";
+
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onSaveInstanceState: " + ss.position + " " + mWasPlaying + " " + mPlayer.isPlaying() + " " + ss.videoOnly + " " + ss.source);
+        }
         return ss;
     }
 
@@ -1221,6 +1239,9 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         this.isVideoOnly = ss.videoOnly;
         this.mSource = Uri.parse(ss.source);
 
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onRestoreInstanceState: " + mInitialPosition + " " + mAutoPlay + " " + isVideoOnly + " " + mSource);
+        }
     }
 
     static class SavedState extends BaseSavedState {

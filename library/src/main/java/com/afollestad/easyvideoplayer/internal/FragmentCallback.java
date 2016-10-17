@@ -8,4 +8,6 @@ public interface  FragmentCallback {
     void onExit(PlayerView player);
 
     void onCreatedView(PlayerView player) ;
+
+    void onPlayerInitBefore(PlayerView player) ;
 }
