@@ -1,4 +1,4 @@
-package com.afollestad.easyvideoplayer.internal;
+package com.ravenfeld.easyvideoplayer.internal;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -47,10 +47,10 @@ import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.afollestad.easyvideoplayer.BuildConfig;
-import com.afollestad.easyvideoplayer.EasyVideoCallback;
-import com.afollestad.easyvideoplayer.IUserMethods;
-import com.afollestad.easyvideoplayer.R;
+import com.ravenfeld.easyvideoplayer.BuildConfig;
+import com.ravenfeld.easyvideoplayer.EasyVideoCallback;
+import com.ravenfeld.easyvideoplayer.IUserMethods;
+import com.ravenfeld.easyvideoplayer.R;
 
 import java.io.IOException;
 import java.lang.annotation.Retention;

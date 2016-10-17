@@ -1,4 +1,4 @@
-package com.afollestad.easyvideoplayer;
+package com.ravenfeld.easyvideoplayer;
 
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -12,7 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 
-import com.afollestad.easyvideoplayer.internal.PlayerView;
+import com.ravenfeld.easyvideoplayer.internal.PlayerView;
 
 public interface IUserMethods {
 

@@ -1,4 +1,4 @@
-package com.afollestad.easyvideoplayer.internal;
+package com.ravenfeld.easyvideoplayer.internal;
 
 
 public interface  FragmentCallback {

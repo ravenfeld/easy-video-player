@@ -1,8 +1,8 @@
-package com.afollestad.easyvideoplayer;
+package com.ravenfeld.easyvideoplayer;
 
 import android.net.Uri;
 
-import com.afollestad.easyvideoplayer.internal.PlayerView;
+import com.ravenfeld.easyvideoplayer.internal.PlayerView;
 
 public abstract class EasyVideoCallback {
 

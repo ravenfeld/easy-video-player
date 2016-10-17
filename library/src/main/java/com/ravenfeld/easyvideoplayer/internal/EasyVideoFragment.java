@@ -1,4 +1,4 @@
-package com.afollestad.easyvideoplayer.internal;
+package com.ravenfeld.easyvideoplayer.internal;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -13,9 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.afollestad.easyvideoplayer.BuildConfig;
-import com.afollestad.easyvideoplayer.EasyVideoCallback;
-import com.afollestad.easyvideoplayer.R;
+import com.ravenfeld.easyvideoplayer.BuildConfig;
+import com.ravenfeld.easyvideoplayer.EasyVideoCallback;
+import com.ravenfeld.easyvideoplayer.R;
 
 
 public class EasyVideoFragment extends Fragment implements FullscreenCallback {

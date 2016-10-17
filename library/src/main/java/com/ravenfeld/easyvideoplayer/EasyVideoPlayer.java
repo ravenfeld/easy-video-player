@@ -1,4 +1,4 @@
-package com.afollestad.easyvideoplayer;
+package com.ravenfeld.easyvideoplayer;
 
 
 import android.content.Context;
@@ -23,10 +23,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.afollestad.easyvideoplayer.internal.EasyVideoFragment;
-import com.afollestad.easyvideoplayer.internal.PlayerView;
-import com.afollestad.easyvideoplayer.internal.FragmentCallback;
-import com.afollestad.easyvideoplayer.internal.Util;
+import com.ravenfeld.easyvideoplayer.internal.EasyVideoFragment;
+import com.ravenfeld.easyvideoplayer.internal.PlayerView;
+import com.ravenfeld.easyvideoplayer.internal.FragmentCallback;
+import com.ravenfeld.easyvideoplayer.internal.Util;
 
 public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IUserMethods {
 
