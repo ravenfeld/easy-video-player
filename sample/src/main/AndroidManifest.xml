@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.afollestad.easyvideoplayersample">
+          package="com.ravenfeld.easyvideoplayersample">
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
@@ -12,7 +12,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ChooseActivity"
             >
 
             <intent-filter>
@@ -22,6 +22,10 @@
 
         </activity>
 
+        <activity android:name=".SimpleActivity"/>
+        <activity android:name=".SimpleFragmentPlayerCreated"/>
+        <activity android:name=".SimpleFragmentPlayerCreated"/>
+        <activity android:name=".ScreenSlidePagerActivity"/>
     </application>
 
 </manifest>

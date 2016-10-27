@@ -6,15 +6,12 @@ import android.util.Log;
 
 import com.ravenfeld.easyvideoplayer.EasyVideoPlayer;
 
-public class SimpleFragment extends AppCompatActivity {
+public class SimpleFragmentPlayerCreated extends AppCompatActivity {
 
-
-    private static final String TAG = "ChooseActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e(TAG, "onCreate: ");
 
         setContentView(R.layout.activity_main_fragment);
     }
