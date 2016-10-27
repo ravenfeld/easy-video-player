@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<tools:ImageButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/btnPlayPause"
+    android:layout_width="@dimen/evp_button_size"
+    android:layout_height="@dimen/evp_button_size"
+    android:layout_below="@+id/seeker_layout"
+    android:layout_centerHorizontal="true"
+    android:layout_gravity="center"
+    android:background="?selectableItemBackground"
+    android:visibility="gone"
+    app:srcCompat="@drawable/evp_action_play"
+    tools:ignore="ContentDescription" />
