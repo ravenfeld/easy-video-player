@@ -3,5 +3,7 @@
 
     <string name="evp_submit">SUBMIT</string>
     <string name="evp_retry">RETRY</string>
+    <string name="mini">MINI</string>
+    <string name="fullscreen">FULLSCREEN</string>
 
 </resources>

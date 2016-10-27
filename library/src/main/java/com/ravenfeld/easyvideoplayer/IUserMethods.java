@@ -92,6 +92,9 @@ public interface IUserMethods {
     boolean isPlaying();
 
     @CheckResult
+    boolean isVideoOnly();
+
+    @CheckResult
     int getCurrentPosition();
 
     @CheckResult
@@ -111,7 +114,7 @@ public interface IUserMethods {
 
     void release();
 
-    void setAutoFullscreen(boolean autoFullScreen);
+    void setAutoRotateInFullscreen(boolean autoRotateInFullScreen);
 
     void setVideoSizeLoading(float videoSizeLoading);
 }

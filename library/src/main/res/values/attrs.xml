@@ -36,7 +36,7 @@
 
         <attr name="themeColor" format="color" />
 
-        <attr name="autoFullscreen" format="boolean" />
+        <attr name="autoRotateInFullscreen" format="boolean" />
 
         <attr name="videoSizeLoading" format="float" />
     </declare-styleable>
