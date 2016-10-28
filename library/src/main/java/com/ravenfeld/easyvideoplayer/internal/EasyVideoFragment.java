@@ -184,7 +184,7 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
 
     @Override
     public void onFullScreen(PlayerView player) {
-        playerView.setVideoOnly(true);
+        player.setVideoOnly(true);
         autoRotateInFullscreen = player.getAutoRotateInFullscreen();
         Activity a = getActivity();
         if (a != null) {
@@ -205,7 +205,7 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
 
     @Override
     public void onFullScreenExit(PlayerView player) {
-        playerView.setVideoOnly(false);
+        player.setVideoOnly(false);
         Activity a = getActivity();
         if (a != null) {
             a.getWindow().getDecorView().setSystemUiVisibility(switchDecorView(false));
