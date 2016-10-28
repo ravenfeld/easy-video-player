@@ -50,8 +50,8 @@
 
         <ImageButton
             android:id="@+id/btnFullScreen"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/evp_button_control_size"
+            android:layout_height="@dimen/evp_button_control_size"
             android:layout_marginEnd="@dimen/evp_content_inset"
             android:layout_marginRight="@dimen/evp_content_inset"
             android:background="?selectableItemBackground"
@@ -61,8 +61,8 @@
 
     <ImageButton
         android:id="@+id/btnRestart"
-        android:layout_width="@dimen/evp_button_size"
-        android:layout_height="@dimen/evp_button_size"
+        android:layout_width="@dimen/evp_button_control_size"
+        android:layout_height="@dimen/evp_button_control_size"
         android:layout_below="@+id/seeker_layout"
         android:layout_marginLeft="@dimen/evp_content_inset_iconbuttons"
         android:layout_marginStart="@dimen/evp_content_inset_iconbuttons"
@@ -92,8 +92,8 @@
 
     <ImageButton
         android:id="@+id/btnPlayPauseControl"
-        android:layout_width="@dimen/evp_button_size"
-        android:layout_height="@dimen/evp_button_size"
+        android:layout_width="@dimen/evp_button_control_size"
+        android:layout_height="@dimen/evp_button_control_size"
         android:layout_below="@+id/seeker_layout"
         android:layout_centerHorizontal="true"
         android:layout_gravity="center"
