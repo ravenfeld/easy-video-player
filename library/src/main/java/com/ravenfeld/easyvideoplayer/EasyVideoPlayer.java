@@ -74,8 +74,6 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
     }
 
     private void init(Context context, AttributeSet attrs) {
-        Log.e(TAG, "init: ");
-
         if (attrs != null) {
             TypedArray a = context.getTheme().obtainStyledAttributes(
                     attrs,
@@ -166,7 +164,6 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "onAttachedToWindow: ");
         }
-
         EasyVideoFragment fragment = null;
         if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_FULLSCREEN + getId()) != null) {
             fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_FULLSCREEN + getId());
@@ -562,14 +559,16 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
         mInitialPosition = getCurrentPosition() >= 0 ? getCurrentPosition() : mInitialPosition;
         mAutoPlay = getCurrentPosition() >= 0 ? playerView.isWasPlaying() : mAutoPlay;
 
-        EasyVideoFragment fragmentFull;
+        if (!mAutoRotateInFullscreen) {
+            EasyVideoFragment fragmentFull;
 
-        fragmentFull = EasyVideoFragment.newInstance(true, mAutoRotateInFullscreen);
-        fragmentFull.show(((AppCompatActivity) getContext()).getSupportFragmentManager(), TAG_FULLSCREEN + getId());
+            fragmentFull = EasyVideoFragment.newInstance(true, mAutoRotateInFullscreen);
+            fragmentFull.show(((AppCompatActivity) getContext()).getSupportFragmentManager(), TAG_FULLSCREEN + getId());
 
-        fragmentFull.setPlayer(playerView);
-        fragmentFull.setCallback(callback);
-        fragmentFull.setFragmentCallback(this);
+            fragmentFull.setPlayer(playerView);
+            fragmentFull.setCallback(callback);
+            fragmentFull.setFragmentCallback(this);
+        }
 
         if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_CONTENT + getId()) != null) {
             EasyVideoFragment fragmentMini = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_CONTENT + getId());

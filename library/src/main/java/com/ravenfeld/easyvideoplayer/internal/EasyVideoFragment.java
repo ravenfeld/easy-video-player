@@ -117,11 +117,6 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog d = super.onCreateDialog(savedInstanceState);
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            Log.e(TAG, "onCreateDialog: " + autoRotateInFullscreen);
-            d.getWindow().getDecorView()
-                    .setSystemUiVisibility(switchDecorView(true));
-        }
         d.setOnKeyListener(new DialogInterface.OnKeyListener() {
             @Override
             public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
@@ -189,14 +184,14 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
 
     @Override
     public void onFullScreen(PlayerView player) {
-        playerView.setVideoOnly(true);
+        player.setVideoOnly(true);
         autoRotateInFullscreen = player.getAutoRotateInFullscreen();
         Activity a = getActivity();
         if (a != null) {
             saveOrientation = a.getRequestedOrientation();
             a.getWindow()
                     .getDecorView()
-                    .setSystemUiVisibility(switchDecorView(false));
+                    .setSystemUiVisibility(switchDecorView(true));
         }
 
         if (fragmentCallback != null) {
@@ -210,7 +205,7 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
 
     @Override
     public void onFullScreenExit(PlayerView player) {
-        playerView.setVideoOnly(false);
+        player.setVideoOnly(false);
         Activity a = getActivity();
         if (a != null) {
             a.getWindow().getDecorView().setSystemUiVisibility(switchDecorView(false));
@@ -244,6 +239,16 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
         super.onPause();
     }
 
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (getDialog() != null) {
+            getDialog().getWindow().getDecorView()
+                    .setSystemUiVisibility(switchDecorView(true));
+        }
+    }
+
     @Override
     public void onResume() {
         if (BuildConfig.DEBUG) {
@@ -253,6 +258,7 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
         if (hasPlayer && playerView != null) {
             playerView.onResume();
         }
+
     }
 
 
