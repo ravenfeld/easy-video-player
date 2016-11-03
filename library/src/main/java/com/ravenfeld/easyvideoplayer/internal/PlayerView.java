@@ -348,6 +348,11 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     }
 
     @Override
+    public boolean isAutoPlay() {
+        return mAutoPlay;
+    }
+
+    @Override
     public void setInitialPosition(@IntRange(from = 0, to = Integer.MAX_VALUE) int pos) {
         mInitialPosition = pos;
     }

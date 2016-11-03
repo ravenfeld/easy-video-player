@@ -68,6 +68,8 @@ public interface IUserMethods {
 
     void setAutoPlay(boolean autoPlay);
 
+    boolean isAutoPlay();
+
     void setInitialPosition(@IntRange(from = 0, to = Integer.MAX_VALUE) int pos);
 
     void showControls();
