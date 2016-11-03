@@ -13,7 +13,9 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.ravenfeld.easyvideoplayer.EasyVideoCallback;
 import com.ravenfeld.easyvideoplayer.EasyVideoPlayer;
+import com.ravenfeld.easyvideoplayer.internal.PlayerView;
 
 
 public class ScreenSlidePageFragment extends Fragment {
@@ -33,6 +35,15 @@ public class ScreenSlidePageFragment extends Fragment {
                 videoView.setId(Math.abs(url.hashCode()));
                 videoView.setSource(Uri.parse(url));
                 videoView.setAutoRotateInFullscreen(true);
+                videoView.setCallback(new EasyVideoCallback() {
+                    @Override
+                    public void onStarted(PlayerView player) {
+                        super.onStarted(player);
+                        if (!getUserVisibleHint()) {
+                            videoView.pause();
+                        }
+                    }
+                });
                 if (save != null) {
                     videoView.onRestoreInstanceState(save);
                 }
@@ -92,7 +103,10 @@ public class ScreenSlidePageFragment extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisible()) {
-            if (!isVisibleToUser) {
+            if (isVisibleToUser) {
+                if (videoView != null && videoView.isAutoPlay())
+                    videoView.start();
+            } else {
                 videoView.pause();
             }
         }
