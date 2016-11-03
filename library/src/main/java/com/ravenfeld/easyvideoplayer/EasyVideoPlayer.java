@@ -386,6 +386,11 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
     }
 
     @Override
+    public boolean isAutoPlay() {
+        return mAutoPlay;
+    }
+
+    @Override
     public void setInitialPosition(@IntRange(from = 0, to = Integer.MAX_VALUE) int pos) {
         mInitialPosition = pos;
         if (playerView != null) {
@@ -572,6 +577,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
 
         if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_CONTENT + getId()) != null) {
             EasyVideoFragment fragmentMini = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_CONTENT + getId());
+            player.pause();
             fragmentMini.setPlayer(null);
         }
         if (callback != null) callback.onFullScreen(player);
