@@ -720,7 +720,9 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         mSurfaceAvailable = false;
         mSurface.release();
         mSurface = null;
-        mPlayer.setSurface(mSurface);
+        if (mPlayer != null) {
+            mPlayer.setSurface(mSurface);
+        }
         return false;
     }
 
