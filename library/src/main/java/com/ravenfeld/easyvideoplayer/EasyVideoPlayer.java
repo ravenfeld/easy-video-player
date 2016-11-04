@@ -595,7 +595,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
 
         }
 
-        fragment.setPlayer(playerView);
+        fragment.setPlayer(player);
         fragment.setCallback(callback);
         fragment.setFragmentCallback(EasyVideoPlayer.this);
 
