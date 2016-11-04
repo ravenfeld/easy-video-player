@@ -720,7 +720,9 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         mSurfaceAvailable = false;
         mSurface.release();
         mSurface = null;
-        mPlayer.setSurface(mSurface);
+        if (mPlayer != null) {
+            mPlayer.setSurface(mSurface);
+        }
         return false;
     }
 
@@ -964,7 +966,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.btnPlayPause || view.getId() == R.id.btnPlayPauseControl) {
-            if (mPlayer.isPlaying()) {
+            if (isPlaying()) {
                 pause();
             } else {
                 if (mHideControlsOnPlay && !mControlsDisabled) {

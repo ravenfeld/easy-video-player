@@ -261,6 +261,13 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
 
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        if(playerView!=null && !fullscreen){
+            playerView.detach();
+        }
+    }
 
     @Override
     public void onRestoreInstance(PlayerView player) {

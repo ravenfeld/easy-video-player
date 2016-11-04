@@ -140,24 +140,8 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
             mThemeColor = Util.resolveColor(context, R.attr.colorPrimary);
             mAutoRotateInFullscreen = false;
         }
-        clear();
     }
-
-
-    private void clear() {
-        if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_FULLSCREEN + getId()) != null) {
-            EasyVideoFragment fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_FULLSCREEN + getId());
-            ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().remove(fragment).commit();
-            ((AppCompatActivity) getContext()).getSupportFragmentManager().executePendingTransactions();
-        }
-
-        if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_CONTENT + getId()) != null) {
-            EasyVideoFragment fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_CONTENT + getId());
-            ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().remove(fragment).commit();
-            ((AppCompatActivity) getContext()).getSupportFragmentManager().executePendingTransactions();
-        }
-    }
-
+    
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -611,7 +595,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
 
         }
 
-        fragment.setPlayer(playerView);
+        fragment.setPlayer(player);
         fragment.setCallback(callback);
         fragment.setFragmentCallback(EasyVideoPlayer.this);
 
