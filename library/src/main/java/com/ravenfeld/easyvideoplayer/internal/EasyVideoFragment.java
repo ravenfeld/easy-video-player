@@ -185,7 +185,6 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
     @Override
     public void onFullScreen(PlayerView player) {
         player.setVideoOnly(true);
-        autoRotateInFullscreen = player.getAutoRotateInFullscreen();
         Activity a = getActivity();
         if (a != null) {
             saveOrientation = a.getRequestedOrientation();
@@ -198,7 +197,7 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
             fragmentCallback.onEnter(player);
         }
 
-        if (a != null && player.getAutoRotateInFullscreen()) {
+        if (a != null && autoRotateInFullscreen) {
             a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         }
     }
@@ -216,7 +215,7 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
         if (fragmentCallback != null) {
             fragmentCallback.onExit(player);
         }
-        if (a != null && player.getAutoRotateInFullscreen()) {
+        if (a != null && autoRotateInFullscreen) {
             a.setRequestedOrientation(saveOrientation);
         }
 
