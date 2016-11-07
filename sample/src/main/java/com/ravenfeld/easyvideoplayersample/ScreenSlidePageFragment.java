@@ -7,6 +7,7 @@ import android.os.Message;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import com.ravenfeld.easyvideoplayer.internal.PlayerView;
 
 
 public class ScreenSlidePageFragment extends Fragment {
+    private static final String TAG = "ScreenSlidePageFragment";
     private static final String URL = "URL";
     private static final String VIDEO = "VIDEO";
     private EasyVideoPlayer videoView;
@@ -33,20 +35,32 @@ public class ScreenSlidePageFragment extends Fragment {
         public void handleMessage(Message msg) {
             if (msg.what == LOADER_FINISHED) {
                 videoView.setId(Math.abs(url.hashCode()));
-                videoView.setSource(Uri.parse(url));
-                videoView.setAutoRotateInFullscreen(true);
+
                 videoView.setCallback(new EasyVideoCallback() {
                     @Override
                     public void onStarted(PlayerView player) {
                         super.onStarted(player);
-                        if (!getUserVisibleHint()) {
-                            videoView.pause();
+                    }
+
+                    @Override
+                    public void onPrepared(PlayerView player) {
+                        super.onPrepared(player);
+                        if (getUserVisibleHint()) {
+                            videoView.hideControls();
+                            videoView.start();
                         }
+                    }
+
+                    @Override
+                    public boolean onPreparing(PlayerView player) {
+                        return getUserVisibleHint();
                     }
                 });
                 if (save != null) {
                     videoView.onRestoreInstanceState(save);
                 }
+                videoView.setSource(Uri.parse(url));
+                videoView.setAutoRotateInFullscreen(true);
 
                 if (videoView.getParent() == null) {
                     container.addView(videoView);
@@ -96,6 +110,7 @@ public class ScreenSlidePageFragment extends Fragment {
     public void onResume() {
         super.onResume();
         handler.sendEmptyMessageDelayed(LOADER_FINISHED, 500);
+
     }
 
 
@@ -104,10 +119,10 @@ public class ScreenSlidePageFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisible()) {
             if (isVisibleToUser) {
-                if (videoView != null && videoView.isAutoPlay())
+                if (videoView != null)
                     videoView.start();
             } else {
-                videoView.pause();
+                videoView.reset();
             }
         }
     }
