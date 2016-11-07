@@ -142,7 +142,6 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     private boolean mControlsDisabled = false;
     private boolean mEnabledSeekBar = true;
     private int mThemeColor = 0;
-    private boolean mAutoRotateInFullscreen = false;
     private float mVideoSizeLoading = 16f / 10f;
 
     private boolean isVideoLocal = true;
@@ -361,40 +360,44 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         if (!mSurfaceAvailable || mSource == null || mPlayer == null || mIsPrepared)
             return;
         try {
-            reset();
-            if (mCallback != null)
-                mCallback.onPreparing(this);
-            mPlayer.setSurface(mSurface);
-            if (mSource.getScheme() != null &&
-                    (mSource.getScheme().equals("http") || mSource.getScheme().equals("https"))) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Loading web URI: " + mSource.toString());
-                }
-                isVideoLocal = false;
-                mPlayer.setDataSource(mSource.toString());
-            } else if (mSource.getScheme() != null && (mSource.getScheme().equals("file") && mSource.getPath().contains("/android_assets/"))) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Loading assets URI: " + mSource.toString());
-                }
-                AssetFileDescriptor afd;
-                afd = getContext().getAssets().openFd(mSource.toString().replace("file:///android_assets/", ""));
-                mPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-                afd.close();
-            } else if (mSource.getScheme() != null && mSource.getScheme().equals("asset")) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Loading assets URI: " + mSource.toString());
-                }
-                AssetFileDescriptor afd;
-                afd = getContext().getAssets().openFd(mSource.toString().replace("asset://", ""));
-                mPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-                afd.close();
-            } else {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Loading local URI: " + mSource.toString());
-                }
-                mPlayer.setDataSource(getContext(), mSource);
+            mPlayer.reset();
+            boolean continuePrepa = true;
+            if (mCallback != null) {
+                continuePrepa = mCallback.onPreparing(this);
             }
-            mPlayer.prepareAsync();
+            if (continuePrepa) {
+                mPlayer.setSurface(mSurface);
+                if (mSource.getScheme() != null &&
+                        (mSource.getScheme().equals("http") || mSource.getScheme().equals("https"))) {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Loading web URI: " + mSource.toString());
+                    }
+                    isVideoLocal = false;
+                    mPlayer.setDataSource(mSource.toString());
+                } else if (mSource.getScheme() != null && (mSource.getScheme().equals("file") && mSource.getPath().contains("/android_asset/"))) {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Loading assets URI: " + mSource.toString());
+                    }
+                    AssetFileDescriptor afd;
+                    afd = getContext().getAssets().openFd(mSource.toString().replace("file:///android_asset/", ""));
+                    mPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                    afd.close();
+                } else if (mSource.getScheme() != null && mSource.getScheme().equals("asset")) {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Loading assets URI: " + mSource.toString());
+                    }
+                    AssetFileDescriptor afd;
+                    afd = getContext().getAssets().openFd(mSource.toString().replace("asset://", ""));
+                    mPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                    afd.close();
+                } else {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Loading local URI: " + mSource.toString());
+                    }
+                    mPlayer.setDataSource(getContext(), mSource);
+                }
+                mPlayer.prepareAsync();
+            }
         } catch (IOException e) {
             throwError(e);
         }
@@ -574,6 +577,20 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     }
 
     @Override
+    public void restart() {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "restart: ");
+        }
+        if (mPlayer == null) return;
+        if (isPrepared()) {
+            seekTo(0);
+            if (!isPlaying()) {
+                start();
+            }
+        }
+    }
+
+    @Override
     public void seekTo(@IntRange(from = 0, to = Integer.MAX_VALUE) int pos) {
         if (mPlayer == null) return;
         mPlayer.seekTo(pos);
@@ -638,7 +655,12 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         }
         if (mPlayer == null) return;
         mIsPrepared = false;
+        mSource = null;
         mPlayer.reset();
+        updateUi();
+        mProgressFrame.setVisibility(VISIBLE);
+        showControls();
+        invalidateActions();
     }
 
     @Override
@@ -661,15 +683,6 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
             mHandler = null;
         }
 
-    }
-
-    @Override
-    public void setAutoRotateInFullscreen(boolean autoRotateInFullScreen) {
-        this.mAutoRotateInFullscreen = autoRotateInFullScreen;
-    }
-
-    public boolean getAutoRotateInFullscreen() {
-        return this.mAutoRotateInFullscreen;
     }
 
     @Override
@@ -781,7 +794,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
             } else {
                 int percentSeeker = (int) (mSeeker.getMax() * (percent / 100f));
                 mSeeker.setSecondaryProgress(percentSeeker);
-                if (percentSeeker < mediaPlayer.getCurrentPosition()) {
+                if (percentSeeker < mediaPlayer.getCurrentPosition() || !mediaPlayer.isPlaying()) {
                     mProgressFrame.setVisibility(VISIBLE);
                     if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
                         mBtnPlayPause.setVisibility(View.INVISIBLE);
@@ -975,10 +988,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
                 start();
             }
         } else if (view.getId() == R.id.btnRestart) {
-            seekTo(0);
-            if (!isPlaying()) {
-                start();
-            }
+            restart();
         } else if (view.getId() == R.id.btnRetry) {
             if (mCallback != null)
                 mCallback.onRetry(this, mSource);

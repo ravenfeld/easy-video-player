@@ -104,6 +104,8 @@ public interface IUserMethods {
 
     void start();
 
+    void restart();
+
     void seekTo(@IntRange(from = 0, to = Integer.MAX_VALUE) int pos);
 
     void setVolume(@FloatRange(from = 0f, to = 1f) float leftVolume, @FloatRange(from = 0f, to = 1f) float rightVolume);
@@ -115,8 +117,6 @@ public interface IUserMethods {
     void reset();
 
     void release();
-
-    void setAutoRotateInFullscreen(boolean autoRotateInFullScreen);
 
     void setVideoSizeLoading(float videoSizeLoading);
 }

@@ -141,7 +141,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
             mAutoRotateInFullscreen = false;
         }
     }
-    
+
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -477,7 +477,18 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
     @Override
     public void start() {
         if (playerView != null) {
-            playerView.start();
+            if (isPrepared()) {
+                playerView.start();
+            } else {
+                playerView.setSource(mSource);
+            }
+        }
+    }
+
+    @Override
+    public void restart() {
+        if (playerView != null) {
+            playerView.restart();
         }
     }
 
@@ -511,6 +522,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
 
     @Override
     public void reset() {
+        mInitialPosition = getCurrentPosition() > 0 ? getCurrentPosition() : mInitialPosition;
         if (playerView != null) {
             playerView.reset();
         }
@@ -523,12 +535,8 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
         }
     }
 
-    @Override
     public void setAutoRotateInFullscreen(boolean autoFullScreen) {
         mAutoRotateInFullscreen = autoFullScreen;
-        if (playerView != null) {
-            playerView.setAutoRotateInFullscreen(mAutoRotateInFullscreen);
-        }
     }
 
     @Override
@@ -635,7 +643,6 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
         }
         player.setEnabledSeekBar(mSeekBarEnabled);
         player.setThemeColor(mThemeColor);
-        player.setAutoRotateInFullscreen(mAutoRotateInFullscreen);
         player.setVideoSizeLoading(mVideoSizeLoading);
 
     }
@@ -713,6 +720,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
             this.videoOnly = in.readInt() != 0;
             this.source = in.readString();
             this.id = in.readInt();
+            this.autoRotate = in.readInt() != 0;
         }
 
         @Override
@@ -723,6 +731,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
             out.writeInt(this.videoOnly ? 1 : 0);
             out.writeString(this.source);
             out.writeInt(this.id);
+            out.writeInt(this.autoRotate ? 1 : 0);
         }
 
         public static final Parcelable.Creator<EasyVideoPlayer.SavedState> CREATOR =
