@@ -546,14 +546,14 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     @CheckResult
     @Override
     public int getCurrentPosition() {
-        if (mPlayer == null && !isPrepared()) return -1;
+        if (mPlayer == null || !isPrepared()) return -1;
         return mPlayer.getCurrentPosition();
     }
 
     @CheckResult
     @Override
     public int getDuration() {
-        if (mPlayer == null && !isPrepared()) return -1;
+        if (mPlayer == null || !isPrepared()) return -1;
         return mPlayer.getDuration();
     }
 
