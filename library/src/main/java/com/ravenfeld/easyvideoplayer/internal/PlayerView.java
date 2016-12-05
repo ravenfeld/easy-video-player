@@ -794,7 +794,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
             } else {
                 int percentSeeker = (int) (mSeeker.getMax() * (percent / 100f));
                 mSeeker.setSecondaryProgress(percentSeeker);
-                if (percentSeeker < mediaPlayer.getCurrentPosition() || !mediaPlayer.isPlaying()) {
+                if (percentSeeker < mediaPlayer.getCurrentPosition()) {
                     mProgressFrame.setVisibility(VISIBLE);
                     if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
                         mBtnPlayPause.setVisibility(View.INVISIBLE);
