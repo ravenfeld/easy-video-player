@@ -398,7 +398,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
                 }
                 mPlayer.prepareAsync();
             }
-        } catch (IOException e) {
+        } catch (IOException | IllegalStateException e) {
             throwError(e);
         }
     }
