@@ -5,5 +5,8 @@
     <string name="evp_retry">RETRY</string>
     <string name="mini">MINI</string>
     <string name="fullscreen">FULLSCREEN</string>
+    <string name="evp_network_error">No connection</string>
+    <string name="evp_error">Error</string>
+    <string name="evp_click_error">Press to retry</string>
 
 </resources>
