@@ -15,7 +15,6 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
-import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.CheckResult;
 import android.support.annotation.ColorInt;
@@ -98,6 +97,8 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
     private View mControlsFrame;
     private View mProgressFrame;
+    private View mTextErrorFrame;
+    private TextView mTextError;
     private View mClickFrame;
 
     private SeekBar mSeeker;
@@ -146,6 +147,8 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
     private boolean isVideoLocal = true;
     private boolean isVideoOnly = false;
+    private boolean isError = false;
+    private String errorMessage = "";
 
     // Runnable used to run code on an interval to update counters and seeker
     private final Runnable mUpdateCounters = new Runnable() {
@@ -404,7 +407,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     }
 
     private void updateUi() {
-        if (mPlayer == null || mSeeker == null || mLabelPosition == null || mLabelDuration == null)
+        if (mPlayer == null || mSeeker == null || mLabelPosition == null || mLabelDuration == null || isError)
             return;
 
         int pos = getCurrentPosition();
@@ -550,7 +553,11 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     @Override
     public int getCurrentPosition() {
         if (mPlayer == null || !isPrepared()) return -1;
-        return mPlayer.getCurrentPosition();
+        if (isError) {
+            return mInitialPosition;
+        } else {
+            return mPlayer.getCurrentPosition();
+        }
     }
 
     @CheckResult
@@ -655,12 +662,26 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         }
         if (mPlayer == null) return;
         mIsPrepared = false;
+        isError = false;
         mSource = null;
         mPlayer.reset();
         updateUi();
         mProgressFrame.setVisibility(VISIBLE);
+        mTextErrorFrame.setVisibility(INVISIBLE);
         showControls();
         invalidateActions();
+    }
+
+    private void resetPlayer() {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "resetPlayer: ");
+        }
+        if (mPlayer == null) return;
+        mIsPrepared = false;
+        isError = false;
+        mPlayer.reset();
+        mProgressFrame.setVisibility(VISIBLE);
+        mTextErrorFrame.setVisibility(INVISIBLE);
     }
 
     @Override
@@ -821,16 +842,31 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         }
     }
 
+    private void displayMessageError() {
+        mProgressFrame.setVisibility(INVISIBLE);
+        mTextErrorFrame.setVisibility(VISIBLE);
+        mTextError.setText(errorMessage);
+        if (mLeftAction == LEFT_ACTION_NONE && mRightAction == RIGHT_ACTION_NONE) {
+            mBtnPlayPause.setVisibility(View.INVISIBLE);
+        }
+    }
+
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "onCompletion: ");
         }
-        mBtnPlayPause.setImageDrawable(mPlayDrawable);
-        if (mHandler != null)
+        if (mHandler != null) {
             mHandler.removeCallbacks(mUpdateCounters);
-        mSeeker.setProgress(mSeeker.getMax());
-        showControls();
+        }
+        if (isError) {
+            displayMessageError();
+            mPlayer.reset();
+        } else {
+            mBtnPlayPause.setImageDrawable(mPlayDrawable);
+            mSeeker.setProgress(0);
+            showControls();
+        }
         if (mCallback != null)
             mCallback.onCompletion(this);
     }
@@ -850,9 +886,14 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
             return false;
         }
         String errorMsg = "Preparation/playback error (" + what + "): ";
+        errorMessage = getContext().getString(R.string.evp_error);
         switch (what) {
             default:
                 errorMsg += "Unknown error";
+                if (extra == -1005 || extra == -1004) {
+                    errorMessage = getContext().getString(R.string.evp_network_error);
+                    errorMsg += "network error";
+                }
                 break;
             case MediaPlayer.MEDIA_ERROR_IO:
                 errorMsg += "I/O error";
@@ -873,6 +914,8 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
                 errorMsg += "Unsupported";
                 break;
         }
+        mInitialPosition = mInitialPosition > getCurrentPosition() ? mInitialPosition : getCurrentPosition();
+        isError = true;
         throwError(new Exception(errorMsg));
         return false;
     }
@@ -922,6 +965,11 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         } else {
             enableControls(true);
         }
+
+        mTextErrorFrame = li.inflate(R.layout.evp_include_text_error, this, false);
+        mTextErrorFrame.setOnClickListener(this);
+        addView(mTextErrorFrame);
+        mTextError = (TextView) mTextErrorFrame.findViewById(R.id.title_error);
 
         // Retrieve controls
         mSeeker = (SeekBar) mControlsFrame.findViewById(R.id.seeker);
@@ -1006,6 +1054,9 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
                 if (mCallback != null) mCallback.onFullScreenExit(this);
                 if (mInternalCallback != null) mInternalCallback.onFullScreenExit(this);
             }
+        } else if (view.getId() == R.id.error) {
+            resetPlayer();
+            prepare();
         }
 
 
