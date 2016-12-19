@@ -1166,7 +1166,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     private void throwError(Exception e) {
         if (mCallback != null)
             mCallback.onError(this, e);
-        //else throw new RuntimeException(e);
+        else throw new RuntimeException(e);
     }
 
     private static void setTint(@NonNull SeekBar seekBar, @ColorInt int color) {
