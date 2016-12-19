@@ -155,10 +155,10 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
             fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_CONTENT + getId());
 
             if (fragment.isDetached()) {
-                ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().attach(fragment).commit();
+                ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().attach(fragment).commitAllowingStateLoss();
             }
             if (!fragment.isAdded()) {
-                ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().replace(getId(), fragment, TAG_CONTENT + getId()).commit();
+                ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().replace(getId(), fragment, TAG_CONTENT + getId()).commitAllowingStateLoss();
             }
         }
 
@@ -168,7 +168,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
             if (mIsVideoOnly) {
                 fragment.show(((AppCompatActivity) getContext()).getSupportFragmentManager(), TAG_FULLSCREEN + getId());
             } else {
-                ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().replace(getId(), fragment, TAG_CONTENT + getId()).commit();
+                ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().replace(getId(), fragment, TAG_CONTENT + getId()).commitAllowingStateLoss();
             }
         }
         fragment.setCallback(callback);
@@ -186,7 +186,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
         EasyVideoFragment fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_CONTENT + getId());
         if (fragment != null)
             if (fragment != null && !fragment.isDetached() && fragment.isResumed()) {
-                ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().detach(fragment).commit();
+                ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().detach(fragment).commitAllowingStateLoss();
             }
     }
 
@@ -589,17 +589,17 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
             fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_CONTENT + getId());
 
             if (fragment.isDetached()) {
-                ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().attach(fragment).commit();
+                ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().attach(fragment).commitAllowingStateLoss();
                 fragment.setPlayer(player);
             }
             if (!fragment.isAdded()) {
-                ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().replace(getId(), fragment, TAG_CONTENT + getId()).commit();
+                ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().replace(getId(), fragment, TAG_CONTENT + getId()).commitAllowingStateLoss();
             }
 
         } else {
             fragment = EasyVideoFragment.newInstance(false, mAutoRotateInFullscreen);
 
-            ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().replace(getId(), fragment, TAG_CONTENT + getId()).commit();
+            ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().replace(getId(), fragment, TAG_CONTENT + getId()).commitAllowingStateLoss();
 
         }
 
