@@ -24,7 +24,6 @@
 
         <activity android:name=".SimpleActivity"/>
         <activity android:name=".SimpleFragmentPlayerCreated"/>
-        <activity android:name=".SimpleFragmentPlayerCreated"/>
         <activity android:name=".ScreenSlidePagerActivity"/>
     </application>
 
