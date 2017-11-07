@@ -55,6 +55,7 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
         Bundle args = getArguments();
         fullscreen = args.getBoolean(FULLSCREEN, false);
         autoRotateInFullscreen = args.getBoolean(AUTO_ROTATE_IN_FULLSCREEN, false);
+
         if (savedInstanceState != null) {
             EasyVideoFragment fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag("CONTENT_" + getId());
             if (fragment != null) {
@@ -135,20 +136,14 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
             return getActivity().getWindow().getDecorView().getSystemUiVisibility();
         }
 
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            if (fullscreen && autoRotateInFullscreen) {
-                return
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        ;
-            } else {
-                return View.SYSTEM_UI_FLAG_VISIBLE;
+        if (fullscreen) {
+            int newUiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                newUiOptions ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
             }
+            return newUiOptions;
         } else {
-            return getActivity().getWindow().getDecorView().getSystemUiVisibility();
+            return View.SYSTEM_UI_FLAG_VISIBLE;
         }
     }
 
@@ -193,13 +188,15 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
                     .setSystemUiVisibility(switchDecorView(true));
         }
 
+        if (a != null && autoRotateInFullscreen) {
+            a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        }
+
         if (fragmentCallback != null) {
             fragmentCallback.onEnter(player);
         }
 
-        if (a != null && autoRotateInFullscreen) {
-            a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-        }
+
     }
 
     @Override
@@ -209,16 +206,15 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
         if (a != null) {
             a.getWindow().getDecorView().setSystemUiVisibility(switchDecorView(false));
         }
+        if (a != null && autoRotateInFullscreen) {
+            a.setRequestedOrientation(saveOrientation);
+        }
         hasPlayer = false;
         if (getDialog() != null)
             dismiss();
         if (fragmentCallback != null) {
             fragmentCallback.onExit(player);
         }
-        if (a != null && autoRotateInFullscreen) {
-            a.setRequestedOrientation(saveOrientation);
-        }
-
     }
 
     @Override
@@ -263,7 +259,7 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
     @Override
     public void onDetach() {
         super.onDetach();
-        if(playerView!=null && !fullscreen){
+        if (playerView != null && !fullscreen) {
             playerView.detach();
         }
     }
