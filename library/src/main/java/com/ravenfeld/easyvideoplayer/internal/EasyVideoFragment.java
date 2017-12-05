@@ -23,6 +23,8 @@ import com.ravenfeld.easyvideoplayer.BuildConfig;
 import com.ravenfeld.easyvideoplayer.EasyVideoCallback;
 import com.ravenfeld.easyvideoplayer.R;
 
+import java.lang.ref.WeakReference;
+
 
 public class EasyVideoFragment extends DialogFragment implements InternalCallback {
 
@@ -30,8 +32,8 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
     private static final String AUTO_ROTATE_IN_FULLSCREEN = "AUTO_ROTATE_IN_FULLSCREEN";
     private static final String HAS_PLAYER = "HAS_PLAYER";
     private static final String TAG = "EasyVideoFragment";
-    private EasyVideoCallback callback;
-    private FragmentCallback fragmentCallback;
+    private WeakReference<EasyVideoCallback> callback;
+    private WeakReference<FragmentCallback> fragmentCallback;
     private PlayerView playerView;
     private boolean hasPlayer = false;
     private boolean fullscreen = false;
@@ -81,8 +83,8 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
         if (playerView == null && player) {
             view = (RelativeLayout) inflater.inflate(R.layout.evp_fragment_player, container, false);
             playerView = (PlayerView) view.findViewById(R.id.player);
-            if (fragmentCallback != null && playerView != null) {
-                fragmentCallback.onCreatedView(playerView);
+            if (fragmentCallback != null && fragmentCallback.get() != null && playerView != null) {
+                fragmentCallback.get().onCreatedView(playerView);
             }
         } else {
             view = (RelativeLayout) inflater.inflate(R.layout.evp_fragment_empty, container, false);
@@ -105,7 +107,9 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
         }
 
         if (playerView != null) {
-            playerView.setCallback(callback);
+            if (callback != null) {
+                playerView.setCallback(callback.get());
+            }
             playerView.setFullScreenCallback(this);
             playerView.setVideoOnly(fullscreen);
             hasPlayer = true;
@@ -148,14 +152,14 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
     }
 
     public void setCallback(@NonNull EasyVideoCallback callback) {
-        this.callback = callback;
+        this.callback = new WeakReference<>(callback);
     }
 
     public void setFragmentCallback(@NonNull FragmentCallback fragmentCallback) {
         if (playerView != null) {
             fragmentCallback.onPlayerInitBefore(playerView);
         }
-        this.fragmentCallback = fragmentCallback;
+        this.fragmentCallback = new WeakReference<>(fragmentCallback);
 
     }
 
@@ -163,12 +167,14 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "setPlayer: ");
         }
-        this.playerView = player;
+        playerView = player;
         if (playerView != null && getView() != null) {
             ((ViewGroup) playerView.getParent()).removeView(playerView);
             ((RelativeLayout) getView()).addView(playerView);
             getView().findViewById(R.id.identifier).bringToFront();
-            playerView.setCallback(callback);
+            if (callback != null) {
+                playerView.setCallback(callback.get());
+            }
             playerView.setFullScreenCallback(this);
             hasPlayer = true;
         } else {
@@ -192,8 +198,8 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
             a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         }
 
-        if (fragmentCallback != null) {
-            fragmentCallback.onEnter(player);
+        if (fragmentCallback != null && fragmentCallback.get() != null) {
+            fragmentCallback.get().onEnter(player);
         }
 
 
@@ -210,10 +216,11 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
             a.setRequestedOrientation(saveOrientation);
         }
         hasPlayer = false;
-        if (getDialog() != null)
+        if (getDialog() != null) {
             dismiss();
-        if (fragmentCallback != null) {
-            fragmentCallback.onExit(player);
+        }
+        if (fragmentCallback != null && fragmentCallback.get() != null) {
+            fragmentCallback.get().onExit(player);
         }
     }
 
@@ -266,8 +273,19 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
 
     @Override
     public void onRestoreInstance(PlayerView player) {
-        if (fragmentCallback != null) {
-            fragmentCallback.onRestoreView(player);
+        if (fragmentCallback != null && fragmentCallback.get() != null) {
+            fragmentCallback.get().onRestoreView(player);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        if (callback != null) {
+            callback.clear();
+        }
+        if (fragmentCallback != null) {
+            fragmentCallback.clear();
+        }
+        super.onDestroy();
     }
 }
