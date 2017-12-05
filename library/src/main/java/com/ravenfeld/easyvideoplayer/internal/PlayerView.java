@@ -617,7 +617,10 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
             return;
         }
         if (isPrepared()) {
+            isError = false;
+            mTextErrorFrame.setVisibility(INVISIBLE);
             mPlayer.start();
+
             mWasPlaying = true;
             if (mHandler == null) {
                 mHandler = new Handler();
@@ -1303,6 +1306,9 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     }
 
     private void throwError(Exception e) {
+        if (BuildConfig.DEBUG) {
+            Log.e(TAG, "throwError ", e);
+        }
         if (mCallback != null && mCallback.get() != null) {
             mCallback.get().onError(this, e);
         } else {
