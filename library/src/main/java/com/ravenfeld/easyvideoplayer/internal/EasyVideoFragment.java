@@ -90,6 +90,7 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
             view = (RelativeLayout) inflater.inflate(R.layout.evp_fragment_empty, container, false);
             if (playerView != null) {
                 ((ViewGroup) playerView.getParent()).removeView(playerView);
+                playerView.initPlayer();
                 view.addView(playerView);
             }
         }
@@ -107,7 +108,7 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
         }
 
         if (playerView != null) {
-            if (callback != null) {
+            if (callback != null && callback.get() != null) {
                 playerView.setCallback(callback.get());
             }
             playerView.setFullScreenCallback(this);

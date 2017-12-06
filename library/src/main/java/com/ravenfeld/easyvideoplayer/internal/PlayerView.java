@@ -7,7 +7,6 @@ import android.content.res.AssetFileDescriptor;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.PorterDuff;
 import android.graphics.SurfaceTexture;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -45,15 +44,14 @@ import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.ravenfeld.easyvideoplayer.BuildConfig;
 import com.ravenfeld.easyvideoplayer.EasyVideoCallback;
+import com.ravenfeld.easyvideoplayer.EasyVideoPlayerConfig;
 import com.ravenfeld.easyvideoplayer.IUserMethods;
 import com.ravenfeld.easyvideoplayer.R;
 
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.ref.WeakReference;
 
 
 public class PlayerView extends FrameLayout implements IUserMethods, TextureView.SurfaceTextureListener,
@@ -123,8 +121,8 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     private Handler mHandler;
 
     private Uri mSource;
-    private WeakReference<EasyVideoCallback> mCallback;
-    private WeakReference<InternalCallback> mInternalCallback;
+    private EasyVideoCallback mCallback;
+    private InternalCallback mInternalCallback;
     @LeftAction
     private int mLeftAction = LEFT_ACTION_NONE;
     @RightAction
@@ -168,15 +166,14 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
 
     private void init(Context context) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "init: ");
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " init:");
         }
         setBackgroundColor(Color.BLACK);
 
         if (mThemeColor == 0) {
             mThemeColor = Util.resolveColor(context, R.attr.colorPrimary);
         }
-
 
         if (mRetryText == null) {
             mRetryText = context.getResources().getText(R.string.evp_retry);
@@ -202,6 +199,8 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         }
 
         onInflate();
+        initPlayer();
+        prepare();
     }
 
     @Override
@@ -214,11 +213,14 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
     @Override
     public void setCallback(@NonNull EasyVideoCallback callback) {
-        mCallback = new WeakReference<>(callback);
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " setCallback: " + callback);
+        }
+        mCallback = callback;
     }
 
     public void setFullScreenCallback(@NonNull InternalCallback callback) {
-        mInternalCallback = new WeakReference<>(callback);
+        mInternalCallback = callback;
     }
 
     @Override
@@ -390,37 +392,37 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         try {
             mPlayer.reset();
             boolean continuePrepa = true;
-            if (mCallback != null && mCallback.get() != null) {
-                continuePrepa = mCallback.get().onPreparing(this);
+            if (mCallback != null) {
+                continuePrepa = mCallback.onPreparing(this);
             }
             if (continuePrepa) {
                 mPlayer.setSurface(mSurface);
                 if (mSource.getScheme() != null &&
                         (mSource.getScheme().equals("http") || mSource.getScheme().equals("https"))) {
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "Loading web URI: " + mSource.toString());
+                    if (EasyVideoPlayerConfig.isDebug()) {
+                        Log.d(TAG, hashCode() + " Loading web URI: " + mSource.toString());
                     }
                     isVideoLocal = false;
                     mPlayer.setDataSource(mSource.toString());
                 } else if (mSource.getScheme() != null && (mSource.getScheme().equals("file") && mSource.getPath().contains("/android_asset/"))) {
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "Loading assets URI: " + mSource.toString());
+                    if (EasyVideoPlayerConfig.isDebug()) {
+                        Log.d(TAG, hashCode() + " Loading assets URI: " + mSource.toString());
                     }
                     AssetFileDescriptor afd;
                     afd = getContext().getAssets().openFd(mSource.toString().replace("file:///android_asset/", ""));
                     mPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
                     afd.close();
                 } else if (mSource.getScheme() != null && mSource.getScheme().equals("asset")) {
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "Loading assets URI: " + mSource.toString());
+                    if (EasyVideoPlayerConfig.isDebug()) {
+                        Log.d(TAG, hashCode() + " Loading assets URI: " + mSource.toString());
                     }
                     AssetFileDescriptor afd;
                     afd = getContext().getAssets().openFd(mSource.toString().replace("asset://", ""));
                     mPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
                     afd.close();
                 } else {
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "Loading local URI: " + mSource.toString());
+                    if (EasyVideoPlayerConfig.isDebug()) {
+                        Log.d(TAG, hashCode() + " Loading local URI: " + mSource.toString());
                     }
                     mPlayer.setDataSource(getContext(), mSource);
                 }
@@ -445,8 +447,8 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         mLabelDuration.setText(Util.getDurationString(dur - pos, true));
         mSeeker.setProgress(pos);
         mSeeker.setMax(dur);
-        if (mCallback != null && mCallback.get() != null) {
-            mCallback.get().onVideoProgressUpdate(this, pos, dur);
+        if (mCallback != null) {
+            mCallback.onVideoProgressUpdate(this, pos, dur);
         }
     }
 
@@ -610,8 +612,8 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
     @Override
     public void start() {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "start: ");
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " start: ");
         }
         if (mPlayer == null) {
             return;
@@ -627,16 +629,16 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
             }
             mHandler.post(mUpdateCounters);
             mBtnPlayPause.setImageDrawable(mPauseDrawable);
-            if (mCallback != null && mCallback.get() != null) {
-                mCallback.get().onStarted(this);
+            if (mCallback != null) {
+                mCallback.onStarted(this);
             }
         }
     }
 
     @Override
     public void restart() {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "restart: ");
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " restart: ");
         }
         if (mPlayer == null) {
             return;
@@ -685,15 +687,15 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
     @Override
     public void pause() {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "pause: ");
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " pause: ");
         }
         if (mPlayer == null || !isPlaying() || !isPrepared()) {
             return;
         }
         mPlayer.pause();
-        if (mCallback != null && mCallback.get() != null) {
-            mCallback.get().onPaused(this);
+        if (mCallback != null) {
+            mCallback.onPaused(this);
         }
         if (mHandler == null) {
             return;
@@ -704,8 +706,8 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
     @Override
     public void stop() {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "stop: ");
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " stop: ");
         }
         if (mPlayer == null) {
             return;
@@ -723,30 +725,36 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
     @Override
     public void reset() {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "reset: ");
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " reset: ");
         }
-        if (mPlayer == null) {
-            return;
-        }
+
         mIsPrepared = false;
         isError = false;
         mSource = null;
-        mPlayer.reset();
-        updateUi();
+        if (mPlayer != null) {
+            mPlayer.reset();
+        }
+
         mProgressFrame.setVisibility(VISIBLE);
         mTextErrorFrame.setVisibility(INVISIBLE);
+        if (mHandler != null) {
+            mHandler.removeCallbacks(mUpdateCounters);
+            mHandler = null;
+        }
+        updateUi();
         showControls();
         invalidateActions();
     }
 
     private void resetPlayer() {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "resetPlayer: ");
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " resetPlayer: ");
         }
         if (mPlayer == null) {
             return;
         }
+
         mIsPrepared = false;
         isError = false;
         mPlayer.reset();
@@ -754,26 +762,35 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         mTextErrorFrame.setVisibility(INVISIBLE);
     }
 
+    public void release(boolean force) {
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " release: ");
+        }
+        reset();
+
+        if (force) {
+            if (mPlayer != null) {
+                try {
+                    mPlayer.release();
+                } catch (Throwable ignored) {
+                    if (EasyVideoPlayerConfig.isDebug()) {
+                        Log.d(TAG, hashCode() + " release: error", ignored);
+                    }
+                }
+                mPlayer.setOnPreparedListener(null);
+                mPlayer.setOnBufferingUpdateListener(null);
+                mPlayer.setOnCompletionListener(null);
+                mPlayer.setOnVideoSizeChangedListener(null);
+                mPlayer.setOnErrorListener(null);
+                mPlayer = null;
+                mTextureView.setSurfaceTextureListener(null);
+            }
+        }
+    }
+
     @Override
     public void release() {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "release: ");
-        }
-        mIsPrepared = false;
-
-        if (mPlayer != null) {
-            try {
-                mPlayer.release();
-            } catch (Throwable ignored) {
-            }
-            mPlayer = null;
-        }
-
-        if (mHandler != null) {
-            mHandler.removeCallbacks(mUpdateCounters);
-            mHandler = null;
-        }
-
+        release(!isVideoOnly);
     }
 
     @Override
@@ -797,8 +814,8 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "onSurfaceTextureAvailable: " + width + " " + height);
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " onSurfaceTextureAvailable: " + width + " " + height);
         }
         mSurfaceAvailable = true;
         mSurface = new Surface(surfaceTexture);
@@ -811,15 +828,15 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "onSurfaceTextureSizeChanged: " + width + " " + height);
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " onSurfaceTextureSizeChanged: " + width + " " + height);
         }
     }
 
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "onSurfaceTextureDestroyed: ");
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " onSurfaceTextureDestroyed: ");
         }
 
         mSurfaceAvailable = false;
@@ -838,8 +855,8 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "onPrepared: ");
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " onPrepared: ");
         }
         mIsPrepared = true;
         mLabelPosition.setText(Util.getDurationString(0, false));
@@ -863,8 +880,11 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
             // Hack to show first frame, is there another way?
             getFrame();
         }
-        if (mCallback != null && mCallback.get() != null) {
-            mCallback.get().onPrepared(this);
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " mCallback: " + (mCallback != null));
+        }
+        if (mCallback != null) {
+            mCallback.onPrepared(this);
         }
 
     }
@@ -898,8 +918,8 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
                 }
             }
         }
-        if (mCallback != null && mCallback.get() != null) {
-            mCallback.get().onBuffering(this, percent);
+        if (mCallback != null) {
+            mCallback.onBuffering(this, percent);
         }
     }
 
@@ -927,8 +947,8 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "onCompletion: ");
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " onCompletion: ");
         }
         if (mHandler != null) {
             mHandler.removeCallbacks(mUpdateCounters);
@@ -941,15 +961,16 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
             mSeeker.setProgress(0);
             showControls();
         }
-        if (mCallback != null && mCallback.get() != null) {
-            mCallback.get().onCompletion(this);
+        updateUi();
+        if (mCallback != null) {
+            mCallback.onCompletion(this);
         }
     }
 
     @Override
     public void onVideoSizeChanged(MediaPlayer mediaPlayer, int width, int height) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "onVideoSizeChanged: " + width + " " + height);
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " onVideoSizeChanged: " + width + " " + height);
         }
     }
 
@@ -960,7 +981,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
             // Just ignore it
             return false;
         }
-        String errorMsg = "Preparation/playback error (" + what + "): ";
+        String errorMsg = "Preparation/playback error (" + what + " " + extra + "): ";
         errorMessage = getContext().getString(R.string.evp_error);
         switch (what) {
             default:
@@ -995,25 +1016,13 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         return false;
     }
 
-
     private void onInflate() {
         setKeepScreenOn(true);
-
-        mHandler = new Handler();
-        mPlayer = new MediaPlayer();
-        mPlayer.setOnPreparedListener(this);
-        mPlayer.setOnBufferingUpdateListener(this);
-        mPlayer.setOnCompletionListener(this);
-        mPlayer.setOnVideoSizeChangedListener(this);
-        mPlayer.setOnErrorListener(this);
-        mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
         // Instantiate and add TextureView for rendering
         FrameLayout.LayoutParams textureLp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         mTextureView = new TextureView(getContext());
         addView(mTextureView, textureLp);
-        mTextureView.setSurfaceTextureListener(this);
 
         LayoutInflater li = LayoutInflater.from(getContext());
 
@@ -1095,7 +1104,21 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
         setControlsEnabled(false);
         invalidateActions();
-        prepare();
+    }
+
+    public void initPlayer() {
+        if (!isVideoOnly) {
+            mHandler = new Handler();
+            mPlayer = new MediaPlayer();
+            mPlayer.setOnPreparedListener(this);
+            mPlayer.setOnBufferingUpdateListener(this);
+            mPlayer.setOnCompletionListener(this);
+            mPlayer.setOnVideoSizeChangedListener(this);
+            mPlayer.setOnErrorListener(this);
+            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mTextureView.setSurfaceTextureListener(this);
+
+        }
     }
 
     @Override
@@ -1112,30 +1135,30 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         } else if (view.getId() == R.id.btnRestart) {
             restart();
         } else if (view.getId() == R.id.btnRetry) {
-            if (mCallback != null && mCallback.get() != null) {
-                mCallback.get().onRetry(this, mSource);
+            if (mCallback != null) {
+                mCallback.onRetry(this, mSource);
             }
         } else if (view.getId() == R.id.btnSubmit) {
-            if (mCallback != null && mCallback.get() != null) {
-                mCallback.get().onSubmit(this, mSource);
+            if (mCallback != null) {
+                mCallback.onSubmit(this, mSource);
             }
         } else if (view.getId() == R.id.btnFullScreen) {
             if (!isVideoOnly) {
                 mInitialPosition = mInitialPosition > getCurrentPosition() ? mInitialPosition : getCurrentPosition();
                 mWasPlaying = isPlaying();
-                if (mCallback != null && mCallback.get() != null) {
-                    mCallback.get().onFullScreen(this);
+                if (mCallback != null) {
+                    mCallback.onFullScreen(this);
                 }
-                if (mInternalCallback != null && mInternalCallback.get() != null) {
-                    mInternalCallback.get().onFullScreen(this);
+                if (mInternalCallback != null) {
+                    mInternalCallback.onFullScreen(this);
                 }
             } else {
                 mWasPlaying = isPlaying();
-                if (mCallback != null && mCallback.get() != null) {
-                    mCallback.get().onFullScreenExit(this);
+                if (mCallback != null) {
+                    mCallback.onFullScreenExit(this);
                 }
-                if (mInternalCallback != null && mInternalCallback.get() != null) {
-                    mInternalCallback.get().onFullScreenExit(this);
+                if (mInternalCallback != null) {
+                    mInternalCallback.onFullScreenExit(this);
                 }
             }
         } else if (view.getId() == R.id.error) {
@@ -1169,30 +1192,22 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     }
 
     public void detach() {
-        release();
-
-        mSeeker = null;
-        mLabelPosition = null;
-        mLabelDuration = null;
-        mBtnPlayPause = null;
-        mBtnRestart = null;
-        mBtnSubmit = null;
-
-        mControlsFrame = null;
-        mClickFrame = null;
-        mProgressFrame = null;
-        if (mCallback != null) {
-            mCallback.clear();
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.d(TAG, hashCode() + " detach: ");
         }
-        if (mInternalCallback != null) {
-            mInternalCallback.clear();
-        }
-        if (mHandler != null) {
-            mHandler.removeCallbacks(mUpdateCounters);
-            mHandler = null;
-        }
+        release(true);
+        mTextErrorFrame.setOnClickListener(null);
+        mSeeker.setOnSeekBarChangeListener(null);
+        mBtnPlayPauseVideo.setOnClickListener(null);
+        mBtnPlayPauseControl.setOnClickListener(null);
+        mBtnRestart.setOnClickListener(null);
+        mBtnSubmit.setOnClickListener(null);
+        mClickFrame.setOnTouchListener(null);
+        mBtnFullScreen.setOnClickListener(null);
+        mCallback = null;
+        mInternalCallback = null;
+        removeAllViews();
     }
-
 
     private void invalidateActions() {
         switch (mLeftAction) {
@@ -1306,11 +1321,11 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     }
 
     private void throwError(Exception e) {
-        if (BuildConfig.DEBUG) {
-            Log.e(TAG, "throwError ", e);
+        if (EasyVideoPlayerConfig.isDebug()) {
+            Log.e(TAG, hashCode() + " throwError ", e);
         }
-        if (mCallback != null && mCallback.get() != null) {
-            mCallback.get().onError(this, e);
+        if (mCallback != null) {
+            mCallback.onError(this, e);
         } else {
             throw new RuntimeException(e);
         }
@@ -1322,7 +1337,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
             seekBar.setThumbTintList(s1);
             seekBar.setProgressTintList(s1);
             seekBar.setSecondaryProgressTintList(s1);
-        } else if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
+        } else {
             Drawable progressDrawable = DrawableCompat.wrap(seekBar.getProgressDrawable());
             seekBar.setProgressDrawable(progressDrawable);
             DrawableCompat.setTintList(progressDrawable, s1);
@@ -1330,17 +1345,6 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
                 Drawable thumbDrawable = DrawableCompat.wrap(seekBar.getThumb());
                 DrawableCompat.setTintList(thumbDrawable, s1);
                 seekBar.setThumb(thumbDrawable);
-            }
-        } else {
-            PorterDuff.Mode mode = PorterDuff.Mode.SRC_IN;
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
-                mode = PorterDuff.Mode.MULTIPLY;
-            }
-            if (seekBar.getIndeterminateDrawable() != null) {
-                seekBar.getIndeterminateDrawable().setColorFilter(color, mode);
-            }
-            if (seekBar.getProgressDrawable() != null) {
-                seekBar.getProgressDrawable().setColorFilter(color, mode);
             }
         }
     }
@@ -1359,8 +1363,8 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     public void onRestoreInstanceState(Parcelable state) {
         super.onRestoreInstanceState(state);
 
-        if (mInternalCallback != null && mInternalCallback.get() != null) {
-            mInternalCallback.get().onRestoreInstance(this);
+        if (mInternalCallback != null) {
+            mInternalCallback.onRestoreInstance(this);
         }
     }
 }
