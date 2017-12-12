@@ -91,6 +91,9 @@ public interface IUserMethods {
     boolean isPrepared();
 
     @CheckResult
+    boolean isOnPreparing();
+
+    @CheckResult
     boolean isPlaying();
 
     @CheckResult

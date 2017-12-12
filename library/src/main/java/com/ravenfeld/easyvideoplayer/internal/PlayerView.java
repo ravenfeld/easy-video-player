@@ -116,6 +116,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     private MediaPlayer mPlayer;
     private boolean mSurfaceAvailable;
     private boolean mIsPrepared;
+    private boolean mIsOnPreparing;
     private boolean mWasPlaying;
 
     private Handler mHandler;
@@ -396,6 +397,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
                 continuePrepa = mCallback.onPreparing(this);
             }
             if (continuePrepa) {
+                mIsOnPreparing = true;
                 mPlayer.setSurface(mSurface);
                 if (mSource.getScheme() != null &&
                         (mSource.getScheme().equals("http") || mSource.getScheme().equals("https"))) {
@@ -576,6 +578,12 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     @Override
     public boolean isPrepared() {
         return mPlayer != null && mIsPrepared;
+    }
+
+    @CheckResult
+    @Override
+    public boolean isOnPreparing() {
+        return mPlayer != null && mIsOnPreparing;
     }
 
     @CheckResult
@@ -783,6 +791,12 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
                 mPlayer.setOnVideoSizeChangedListener(null);
                 mPlayer.setOnErrorListener(null);
                 mPlayer = null;
+
+            }
+            if (mSurface != null) {
+                mSurface.release();
+            }
+            if (mTextureView != null) {
                 mTextureView.setSurfaceTextureListener(null);
             }
         }
@@ -858,6 +872,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         if (EasyVideoPlayerConfig.isDebug()) {
             Log.d(TAG, hashCode() + " onPrepared: ");
         }
+        mIsOnPreparing = false;
         mIsPrepared = true;
         mLabelPosition.setText(Util.getDurationString(0, false));
         mLabelDuration.setText(Util.getDurationString(mediaPlayer.getDuration(), false));
