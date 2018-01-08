@@ -155,7 +155,9 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
             fragment.setFragmentCallback(EasyVideoPlayer.this);
         } else if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_CONTENT + getId()) != null) {
             fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_CONTENT + getId());
-            fragment.setCallback(callback.get());
+            if (callback != null && callback.get() != null) {
+                fragment.setCallback(callback.get());
+            }
             fragment.setFragmentCallback(EasyVideoPlayer.this);
             if (fragment.isDetached()) {
                 ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().attach(fragment).commitAllowingStateLoss();
@@ -210,7 +212,9 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
         EasyVideoFragment fragment;
         if (((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_CONTENT + getId()) != null) {
             fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_CONTENT + getId());
-            fragment.setCallback(this.callback.get());
+            if (callback != null && this.callback.get() != null) {
+                fragment.setCallback(this.callback.get());
+            }
         }
     }
 
