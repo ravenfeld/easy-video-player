@@ -1003,7 +1003,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
                 errorMsg += "Unknown error";
                 if (extra == -1005 || extra == -1004) {
                     errorMessage = getContext().getString(R.string.evp_network_error);
-                    errorMsg += "network error";
+                    errorMsg += " network error";
                 }
                 break;
             case MediaPlayer.MEDIA_ERROR_IO:

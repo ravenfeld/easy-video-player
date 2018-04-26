@@ -555,6 +555,10 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
         if (callback != null) {
             callback.clear();
         }
+        EasyVideoFragment fragment = (EasyVideoFragment) ((AppCompatActivity) getContext()).getSupportFragmentManager().findFragmentByTag(TAG_CONTENT + getId());
+        if (fragment != null) {
+            ((AppCompatActivity) getContext()).getSupportFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();
+        }
     }
 
     public void setAutoRotateInFullscreen(boolean autoFullScreen) {
