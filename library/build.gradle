@@ -21,9 +21,9 @@ android {
 }
 
 dependencies {
-    compile 'me.zhanghai.android.materialprogressbar:library:1.1.7'
-    compile "com.android.support:appcompat-v7:$ANDROID_SUPPORT_VERSION"
-    compile "com.android.support:support-annotations:$ANDROID_SUPPORT_VERSION"
+    api 'me.zhanghai.android.materialprogressbar:library:1.1.7'
+    api "com.android.support:appcompat-v7:$ANDROID_SUPPORT_VERSION"
+    api "com.android.support:support-annotations:$ANDROID_SUPPORT_VERSION"
 }
 
 apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
