@@ -19,8 +19,9 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.ravenfeld.easyvideoplayer.BuildConfig;
 import com.ravenfeld.easyvideoplayer.EasyVideoCallback;
+import com.ravenfeld.easyvideoplayer.EasyVideoPlayer;
+import com.ravenfeld.easyvideoplayer.EasyVideoPlayerConfig;
 import com.ravenfeld.easyvideoplayer.R;
 
 import java.lang.ref.WeakReference;
@@ -77,12 +78,12 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
             player = savedInstanceState.getBoolean(HAS_PLAYER, true);
         }
         RelativeLayout view;
-        if (BuildConfig.DEBUG) {
+        if (EasyVideoPlayerConfig.isDebug()) {
             Log.d(TAG, "onCreateView: " + (playerView == null) + " " + player);
         }
         if (playerView == null && player) {
             view = (RelativeLayout) inflater.inflate(R.layout.evp_fragment_player, container, false);
-            playerView = (PlayerView) view.findViewById(R.id.player);
+            playerView = view.findViewById(R.id.player);
             if (fragmentCallback != null && fragmentCallback.get() != null && playerView != null) {
                 fragmentCallback.get().onCreatedView(playerView);
             }
@@ -94,8 +95,8 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
                 view.addView(playerView);
             }
         }
-        TextView format = (TextView) view.findViewById(R.id.identifier);
-        if (BuildConfig.DEBUG) {
+        TextView format = view.findViewById(R.id.identifier);
+        if (EasyVideoPlayerConfig.isDebug()) {
             if (!fullscreen) {
                 format.setText(getString(R.string.mini));
             } else {
@@ -165,7 +166,7 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
     }
 
     public void setPlayer(PlayerView player) {
-        if (BuildConfig.DEBUG) {
+        if (EasyVideoPlayerConfig.isDebug()) {
             Log.d(TAG, "setPlayer: ");
         }
         playerView = player;
@@ -233,7 +234,7 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
 
     @Override
     public void onPause() {
-        if (BuildConfig.DEBUG) {
+        if (EasyVideoPlayerConfig.isDebug()) {
             Log.d(TAG, "onPause: ");
         }
         if (hasPlayer && playerView != null) {
@@ -254,7 +255,7 @@ public class EasyVideoFragment extends DialogFragment implements InternalCallbac
 
     @Override
     public void onResume() {
-        if (BuildConfig.DEBUG) {
+        if (EasyVideoPlayerConfig.isDebug()) {
             Log.d(TAG, "onResume: ");
         }
         super.onResume();

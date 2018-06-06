@@ -5,8 +5,10 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.ColorStateList;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -1372,7 +1374,6 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         setTint(mSeeker, labelColor);
 
     }
-
 
     @Override
     public void onRestoreInstanceState(Parcelable state) {
