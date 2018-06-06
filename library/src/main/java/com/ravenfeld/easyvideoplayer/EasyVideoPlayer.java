@@ -143,7 +143,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        if (BuildConfig.DEBUG) {
+        if (EasyVideoPlayerConfig.isDebug()) {
             Log.d(TAG, "onAttachedToWindow: ");
         }
         EasyVideoFragment fragment = null;
@@ -186,7 +186,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        if (BuildConfig.DEBUG) {
+        if (EasyVideoPlayerConfig.isDebug()) {
             Log.d(TAG, "onDetachedFromWindow: ");
         }
 
@@ -575,7 +575,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
 
     @Override
     public void onEnter(PlayerView player) {
-        if (BuildConfig.DEBUG) {
+        if (EasyVideoPlayerConfig.isDebug()) {
             Log.d(TAG, "onEnter");
         }
         mIsVideoOnly = true;
@@ -607,7 +607,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
 
     @Override
     public void onExit(PlayerView player) {
-        if (BuildConfig.DEBUG) {
+        if (EasyVideoPlayerConfig.isDebug()) {
             Log.d(TAG, "onExit");
         }
         mIsVideoOnly = false;
@@ -646,7 +646,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
 
     @Override
     public void onCreatedView(PlayerView player) {
-        if (BuildConfig.DEBUG) {
+        if (EasyVideoPlayerConfig.isDebug()) {
             Log.d(TAG, "onCreatedView: " + mInitialPosition + " autoPlay " + mAutoPlay + " video only " + mIsVideoOnly + " source " + mSource);
         }
         playerView = player;
@@ -698,7 +698,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
 
     @Override
     public void onPlayerInitBefore(PlayerView player) {
-        if (BuildConfig.DEBUG) {
+        if (EasyVideoPlayerConfig.isDebug()) {
             Log.d(TAG, "onPlayerInitBefore: ");
         }
         playerView = player;
@@ -708,7 +708,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
 
     @Override
     public void onRestoreView(PlayerView player) {
-        if (BuildConfig.DEBUG) {
+        if (EasyVideoPlayerConfig.isDebug()) {
             Log.d(TAG, "onRestoreView: ");
         }
         onCreatedView(player);

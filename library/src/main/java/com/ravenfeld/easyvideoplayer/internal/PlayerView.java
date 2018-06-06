@@ -5,8 +5,10 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.ColorStateList;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -1373,13 +1375,31 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
     }
 
-
     @Override
     public void onRestoreInstanceState(Parcelable state) {
         super.onRestoreInstanceState(state);
 
         if (mInternalCallback != null) {
             mInternalCallback.onRestoreInstance(this);
+        }
+    }
+
+
+    @Override
+    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
+        if (visibility == GONE) {
+            pause();
+        }
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        Rect rect = new Rect();
+        getGlobalVisibleRect(rect);
+        if ( rect.bottom < 0) {
+            pause();
         }
     }
 }
