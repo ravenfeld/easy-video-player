@@ -22,5 +22,4 @@ android {
 
 dependencies {
     implementation project(':library')
-    implementation "com.android.support:appcompat-v7:$ANDROID_SUPPORT_VERSION"
 }
