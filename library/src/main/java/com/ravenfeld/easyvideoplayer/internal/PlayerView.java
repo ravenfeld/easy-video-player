@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.ColorStateList;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
@@ -17,19 +16,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.support.annotation.CheckResult;
-import android.support.annotation.ColorInt;
-import android.support.annotation.ColorRes;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.FloatRange;
-import android.support.annotation.IntDef;
-import android.support.annotation.IntRange;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -46,6 +32,20 @@ import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.CheckResult;
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.FloatRange;
+import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
+
 import com.ravenfeld.easyvideoplayer.EasyVideoCallback;
 import com.ravenfeld.easyvideoplayer.EasyVideoPlayerConfig;
 import com.ravenfeld.easyvideoplayer.IUserMethods;
@@ -54,13 +54,18 @@ import com.ravenfeld.easyvideoplayer.R;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayDeque;
 
 
 public class PlayerView extends FrameLayout implements IUserMethods, TextureView.SurfaceTextureListener,
         MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnCompletionListener,
-        MediaPlayer.OnVideoSizeChangedListener, MediaPlayer.OnErrorListener, View.OnClickListener, SeekBar.OnSeekBarChangeListener {
+        MediaPlayer.OnVideoSizeChangedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnSeekCompleteListener, View.OnClickListener, SeekBar.OnSeekBarChangeListener {
 
     private static final String TAG = "PlayerView";
+
+    private enum Work {
+        SEEK, START, PAUSE
+    }
 
     @IntDef({LEFT_ACTION_NONE, LEFT_ACTION_RESTART, LEFT_ACTION_RETRY})
     @Retention(RetentionPolicy.SOURCE)
@@ -118,8 +123,10 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     private MediaPlayer mPlayer;
     private boolean mSurfaceAvailable;
     private boolean mIsPrepared;
+    private boolean mIsBuffered;
     private boolean mIsOnPreparing;
     private boolean mWasPlaying;
+    private ArrayDeque<Work> workedList = new ArrayDeque<>();
 
     private Handler mHandler;
 
@@ -147,7 +154,6 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     private int mThemeColor = 0;
     private float mVideoSizeLoading = 16f / 10f;
 
-    private boolean isVideoLocal = true;
     private boolean isVideoOnly = false;
     private boolean isError = false;
     private String errorMessage = "";
@@ -406,12 +412,13 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
                     if (EasyVideoPlayerConfig.isDebug()) {
                         Log.d(TAG, hashCode() + " Loading web URI: " + mSource.toString());
                     }
-                    isVideoLocal = false;
+                    mIsBuffered = false;
                     mPlayer.setDataSource(mSource.toString());
                 } else if (mSource.getScheme() != null && (mSource.getScheme().equals("file") && mSource.getPath().contains("/android_asset/"))) {
                     if (EasyVideoPlayerConfig.isDebug()) {
                         Log.d(TAG, hashCode() + " Loading assets URI: " + mSource.toString());
                     }
+                    mIsBuffered = true;
                     AssetFileDescriptor afd;
                     afd = getContext().getAssets().openFd(mSource.toString().replace("file:///android_asset/", ""));
                     mPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
@@ -420,6 +427,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
                     if (EasyVideoPlayerConfig.isDebug()) {
                         Log.d(TAG, hashCode() + " Loading assets URI: " + mSource.toString());
                     }
+                    mIsBuffered = true;
                     AssetFileDescriptor afd;
                     afd = getContext().getAssets().openFd(mSource.toString().replace("asset://", ""));
                     mPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
@@ -428,6 +436,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
                     if (EasyVideoPlayerConfig.isDebug()) {
                         Log.d(TAG, hashCode() + " Loading local URI: " + mSource.toString());
                     }
+                    mIsBuffered = true;
                     mPlayer.setDataSource(getContext(), mSource);
                 }
                 mPlayer.prepareAsync();
@@ -577,6 +586,11 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
 
 
     @CheckResult
+    public boolean isBuffered() {
+        return mPlayer != null && mIsPrepared && mIsBuffered;
+    }
+
+    @CheckResult
     @Override
     public boolean isPrepared() {
         return mPlayer != null && mIsPrepared;
@@ -628,20 +642,24 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         if (mPlayer == null) {
             return;
         }
-        if (isPrepared()) {
-            isError = false;
-            mTextErrorFrame.setVisibility(INVISIBLE);
-            mPlayer.start();
+        if (workedList.isEmpty()) {
+            if (isBuffered()) {
+                isError = false;
+                mTextErrorFrame.setVisibility(INVISIBLE);
+                mPlayer.start();
 
-            mWasPlaying = true;
-            if (mHandler == null) {
-                mHandler = new Handler();
+                mWasPlaying = true;
+                if (mHandler == null) {
+                    mHandler = new Handler();
+                }
+                mHandler.post(mUpdateCounters);
+                mBtnPlayPause.setImageDrawable(mPauseDrawable);
+                if (mCallback != null) {
+                    mCallback.onStarted(this);
+                }
             }
-            mHandler.post(mUpdateCounters);
-            mBtnPlayPause.setImageDrawable(mPauseDrawable);
-            if (mCallback != null) {
-                mCallback.onStarted(this);
-            }
+        } else {
+            workedList.add(Work.START);
         }
     }
 
@@ -653,7 +671,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         if (mPlayer == null) {
             return;
         }
-        if (isPrepared()) {
+        if (isBuffered()) {
             seekTo(0);
             if (!isPlaying()) {
                 start();
@@ -703,15 +721,19 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         if (mPlayer == null || !isPlaying() || !isPrepared()) {
             return;
         }
-        mPlayer.pause();
-        if (mCallback != null) {
-            mCallback.onPaused(this);
+        if (workedList.isEmpty()) {
+            mPlayer.pause();
+            if (mCallback != null) {
+                mCallback.onPaused(this);
+            }
+            if (mHandler == null) {
+                return;
+            }
+            mHandler.removeCallbacks(mUpdateCounters);
+            mBtnPlayPause.setImageDrawable(mPlayDrawable);
+        } else {
+            workedList.add(Work.PAUSE);
         }
-        if (mHandler == null) {
-            return;
-        }
-        mHandler.removeCallbacks(mUpdateCounters);
-        mBtnPlayPause.setImageDrawable(mPlayDrawable);
     }
 
     @Override
@@ -740,6 +762,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         }
 
         mIsPrepared = false;
+        mIsBuffered = false;
         isError = false;
         mSource = null;
         if (mPlayer != null) {
@@ -882,31 +905,16 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         mSeeker.setMax(mediaPlayer.getDuration());
         setControlsEnabled(true);
 
-        if (isVideoLocal) {
+        Log.e("TEST", "onPrepared" + isBuffered());
+        if (isBuffered()) {
+            mIsBuffered = false;
             onBufferingUpdate(mPlayer, 100);
         }
-        if (mAutoPlay) {
-            if (!mControlsDisabled && mHideControlsOnPlay) {
-                hideControls();
-            }
-            start();
-            if (mInitialPosition > 0) {
-                seekTo(mInitialPosition);
-            }
-        } else {
-            // Hack to show first frame, is there another way?
-            getFrame();
-        }
-        if (EasyVideoPlayerConfig.isDebug()) {
-            Log.d(TAG, hashCode() + " mCallback: " + (mCallback != null));
-        }
-        if (mCallback != null) {
-            mCallback.onPrepared(this);
-        }
-
     }
 
     private void getFrame() {
+        Log.e("TEST", "getFrame" + isPrepared());
+
         if (isPrepared()) {
             mPlayer.start();
             if (mInitialPosition >= 0) {
@@ -917,7 +925,49 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     }
 
     @Override
+    public void onSeekComplete(MediaPlayer mp) {
+        workedList.pop();
+        if (!workedList.isEmpty()) {
+            switch (workedList.pop()) {
+                case START:
+                    start();
+                    break;
+                case PAUSE:
+                    pause();
+                    break;
+            }
+        }
+    }
+
+    @Override
     public void onBufferingUpdate(MediaPlayer mediaPlayer, int percent) {
+        Log.e("TEST", "onBufferingUpdate" + percent);
+
+        if (!mIsBuffered) {
+            mIsBuffered = true;
+            if (mAutoPlay) {
+                Log.e("TEST", "mAutoPlay" + percent);
+
+                if (!mControlsDisabled && mHideControlsOnPlay) {
+                    hideControls();
+                }
+                start();
+                if (mInitialPosition > 0) {
+                    seekTo(mInitialPosition);
+                }
+            } else {
+                // Hack to show first frame, is there another way?
+                Log.e("TEST", "getFrame" + percent);
+
+                getFrame();
+            }
+            if (EasyVideoPlayerConfig.isDebug()) {
+                Log.d(TAG, hashCode() + " mCallback: " + (mCallback != null));
+            }
+            if (mCallback != null) {
+                mCallback.onPrepared(this);
+            }
+        }
         if (mSeeker != null) {
             if (percent == 100) {
                 mSeeker.setSecondaryProgress(0);
@@ -1196,14 +1246,14 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
         mWasPlaying = isPlaying();
-        if (mWasPlaying && isPrepared()) {
+        if (mWasPlaying && isBuffered()) {
             mPlayer.pause();
         }
     }
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        if (mWasPlaying && isPrepared()) {
+        if (mWasPlaying && isBuffered()) {
             mPlayer.start();
         }
     }
@@ -1329,7 +1379,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int videoWidth = 0;
         int videoHeight = 0;
-        if (isPrepared()) {
+        if (isBuffered()) {
             videoWidth = mPlayer.getVideoWidth();
             videoHeight = mPlayer.getVideoHeight();
         }
@@ -1398,7 +1448,7 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         super.onLayout(changed, left, top, right, bottom);
         Rect rect = new Rect();
         getGlobalVisibleRect(rect);
-        if ( rect.bottom < 0) {
+        if (rect.bottom < 0) {
             pause();
         }
     }
