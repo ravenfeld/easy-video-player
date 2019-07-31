@@ -20,37 +20,11 @@
             android:id="@+id/bunny"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:enableSeekBar="false"
+            app:enableSeekBar="true"
             app:leftAction="none"
             app:rightAction="none"
+            app:startFullscreen="true"
             app:source="asset://big_buck_bunny.mp4"/>
-
-        <com.ravenfeld.easyvideoplayer.EasyVideoPlayer
-            android:id="@+id/toystory"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:leftAction="none"
-            app:rightAction="none"
-            app:source="http://www.html5videoplayer.net/videos/toystory.mp4"/>
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="text"/>
-
-        <com.ravenfeld.easyvideoplayer.EasyVideoPlayer
-            android:id="@+id/small"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:autoPlay="false"
-            app:autoRotateInFullscreen="true"
-            app:disableControls="false"
-            app:hideControlsOnPlay="true"
-            app:pauseDrawable="@drawable/evp_action_pause"
-            app:playDrawable="@drawable/evp_action_play"
-            app:rightAction="none"
-            app:source="http://techslides.com/demos/sample-videos/small.mp4"/>
 
     </LinearLayout>
 </ScrollView>
