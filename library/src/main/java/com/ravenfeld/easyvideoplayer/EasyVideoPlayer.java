@@ -125,6 +125,8 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
 
                 mAutoRotateInFullscreen = a.getBoolean(R.styleable.EasyVideoPlayer_autoRotateInFullscreen, false);
 
+                mIsVideoOnly = a.getBoolean(R.styleable.EasyVideoPlayer_startFullscreen, false);
+
                 mVideoSizeLoading = a.getFloat(R.styleable.EasyVideoPlayer_videoSizeLoading, 16f / 10f);
 
             } finally {
@@ -138,6 +140,7 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
             mControlsDisabled = false;
             mThemeColor = Util.resolveColor(context, R.attr.colorPrimary);
             mAutoRotateInFullscreen = false;
+            mIsVideoOnly = false;
         }
     }
 
