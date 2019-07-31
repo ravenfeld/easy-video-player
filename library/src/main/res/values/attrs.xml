@@ -39,6 +39,8 @@
         <attr name="autoRotateInFullscreen" format="boolean" />
 
         <attr name="videoSizeLoading" format="float" />
+
+        <attr name="startFullscreen" format="boolean" />
     </declare-styleable>
 
 </resources>
