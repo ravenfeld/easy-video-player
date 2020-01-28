@@ -799,6 +799,20 @@ public class PlayerView extends FrameLayout implements IUserMethods, TextureView
         invalidateActions();
     }
 
+    @Override
+    public void enterFullscreen() {
+        if (!isVideoOnly) {
+            onClick(mBtnFullScreen);
+        }
+    }
+
+    @Override
+    public void exitFullscreen() {
+        if (isVideoOnly) {
+            onClick(mBtnFullScreen);
+        }
+    }
+
     private void resetPlayer() {
         if (EasyVideoPlayerConfig.isDebug()) {
             Log.d(TAG, hashCode() + " resetPlayer: ");

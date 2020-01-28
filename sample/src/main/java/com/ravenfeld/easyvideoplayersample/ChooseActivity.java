@@ -31,6 +31,12 @@ public class ChooseActivity extends AppCompatActivity {
                 startActivity(new Intent(ChooseActivity.this, ScreenSlidePagerActivity.class));
             }
         });
+        findViewById(R.id.button4).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ChooseActivity.this, EnterFullscreenByCodeActivity.class));
+            }
+        });
     }
 
 }

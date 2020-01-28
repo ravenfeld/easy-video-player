@@ -552,6 +552,16 @@ public class EasyVideoPlayer extends FrameLayout implements FragmentCallback, IU
     }
 
     @Override
+    public void enterFullscreen() {
+        playerView.enterFullscreen();
+    }
+
+    @Override
+    public void exitFullscreen() {
+        playerView.exitFullscreen();
+    }
+
+    @Override
     public void release() {
         if (playerView != null) {
             playerView.release();

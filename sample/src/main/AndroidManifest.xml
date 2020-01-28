@@ -25,6 +25,8 @@
         <activity android:name=".SimpleActivity"/>
         <activity android:name=".SimpleFragmentPlayerCreated"/>
         <activity android:name=".ScreenSlidePagerActivity"/>
+        <activity android:name=".EnterFullscreenByCodeActivity" />
+
     </application>
 
 </manifest>
