@@ -123,4 +123,8 @@ public interface IUserMethods {
     void release();
 
     void setVideoSizeLoading(float videoSizeLoading);
+
+    void enterFullscreen();
+
+    void exitFullscreen();
 }
